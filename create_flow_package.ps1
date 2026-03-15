@@ -5,7 +5,7 @@
 # Gebruik: .\create_flow_package.ps1 [-Email "jouw.naam@eigenhuis.nl"]
 # ─────────────────────────────────────────────────────────────────────────────
 param(
-    [string]$Email = "remsey@skills4-it.nl"
+  [string]$Email = "remsey@skills4-it.nl"
 )
 
 Set-StrictMode -Version Latest
@@ -13,8 +13,8 @@ $ErrorActionPreference = "Stop"
 $enc = [System.Text.UTF8Encoding]::new($false)   # UTF-8 zonder BOM
 
 # ── Identifiers ───────────────────────────────────────────────────────────────
-$flowGuidDashed = "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"   # voor XML WorkflowId
-$flowGuidNoDash = "A1B2C3D4E5F67890ABCDEF1234567890"        # voor bestandsnaam
+$flowGuidDashed = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"   # lowercase: Dataverse vergelijkt case-sensitive
+$flowGuidNoDash = "a1b2c3d4e5f67890abcdef1234567890"        # voor bestandsnaam
 $flowSchemaName = "new_VEHCopilotTrainingAanmelding"
 $connRefLogical = "new_sharedoffice365_vehtraining"
 $workspace = "C:\Users\Remse\Desktop\Opdrachtgevers\E - Eigen huis"
