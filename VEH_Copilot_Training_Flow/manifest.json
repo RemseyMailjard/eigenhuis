@@ -1,0 +1,43 @@
+{
+  "schema": "1.0",
+  "details": {
+    "displayName": "VEH Copilot Training \u2014 Aanmelding",
+    "description": "Ontvangt aanmeldingen van de online leeromgeving en stuurt een e-mailnotificatie naar de trainer.",
+    "iconUri": "",
+    "packageTelemetryId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "creator": "Vereniging Eigen Huis",
+    "sourceEnvironment": ""
+  },
+  "resources": {
+    "a1b2c3d4-e5f6-7890-abcd-ef1234567890": {
+      "type": "Microsoft.Flow/flows",
+      "displayName": "VEH Copilot Training \u2014 Aanmelding",
+      "description": "Ontvangt aanmeldingen van de online leeromgeving en stuurt een e-mailnotificatie naar de trainer.",
+      "id": "/Microsoft.Flow/flows/a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "registrationId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "isManaged": false,
+      "details": {
+        "displayName": "VEH Copilot Training \u2014 Aanmelding"
+      },
+      "configurableBy": "User",
+      "hierarchy": "Root",
+      "dependsOn": ["shared_office365_conn_001"]
+    },
+    "shared_office365_conn_001": {
+      "type": "Microsoft.PowerApps/apis/connections",
+      "displayName": "Office 365 Outlook",
+      "description": "Microsoft Office 365 Outlook-verbinding voor het versturen van e-mails.",
+      "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1636/1.0.1636.3409/office365/icon.png",
+      "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+      "id": "/providers/Microsoft.PowerApps/apis/connections/shared_office365",
+      "registrationId": "shared_office365_conn_001",
+      "isManaged": false,
+      "details": {
+        "displayName": "Office 365 Outlook"
+      },
+      "configurableBy": "User",
+      "hierarchy": "Child",
+      "dependsOn": []
+    }
+  }
+}

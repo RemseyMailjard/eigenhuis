@@ -1,0 +1,85 @@
+{
+  "name": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "properties": {
+    "apiId": "/providers/Microsoft.PowerApps/apis/shared_logicflows",
+    "displayName": "VEH Copilot Training \u2014 Aanmelding",
+    "state": "Started",
+    "connectionReferences": {
+      "shared_office365": {
+        "connectionName": "",
+        "source": "Invoker",
+        "id": "/providers/Microsoft.PowerApps/apis/shared_office365",
+        "tier": "Standard"
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections":    { "defaultValue": {}, "type": "Object" },
+        "$authentication": { "defaultValue": {}, "type": "SecureObject" }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "Http",
+          "inputs": {
+            "method": "POST",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "naam":     { "type": "string" },
+                "functie":  { "type": "string" },
+                "email":    { "type": "string" },
+                "leerwens": { "type": "string" },
+                "datum":    { "type": "string" },
+                "tijdstip": { "type": "string" }
+              }
+            }
+          }
+        }
+      },
+      "actions": {
+        "Stuur_aanmeldingsmail": {
+          "runAfter": {},
+          "type": "ApiConnection",
+          "inputs": {
+            "host": {
+              "connection": {
+                "name": "@parameters('$connections')['shared_office365']['connectionId']"
+              }
+            },
+            "method": "post",
+            "path": "/v2/Mail",
+            "body": {
+              "To": "remsey@skills4-it.nl",
+              "Subject": "Nieuwe deelnemer Copilot-training: @{triggerBody()?['naam']}",
+              "Body": "<table style=\"font-family:Calibri,Arial,sans-serif;font-size:14px;border-collapse:collapse;width:100%;max-width:600px\"><tr style=\"background:#3B2785\"><td colspan=\"2\" style=\"padding:16px 20px;color:white;font-size:18px;font-weight:bold\">&#127891; Nieuwe aanmelding &#8212; Copilot Training VEH</td></tr><tr><td style=\"padding:10px 20px;width:140px;font-weight:bold;border-bottom:1px solid #eee\">Naam</td><td style=\"padding:10px 20px;border-bottom:1px solid #eee\">@{triggerBody()?['naam']}</td></tr><tr style=\"background:#f9f9f9\"><td style=\"padding:10px 20px;font-weight:bold;border-bottom:1px solid #eee\">Functie</td><td style=\"padding:10px 20px;border-bottom:1px solid #eee\">@{triggerBody()?['functie']}</td></tr><tr><td style=\"padding:10px 20px;font-weight:bold;border-bottom:1px solid #eee\">E-mailadres</td><td style=\"padding:10px 20px;border-bottom:1px solid #eee\">@{triggerBody()?['email']}</td></tr><tr style=\"background:#f9f9f9\"><td style=\"padding:10px 20px;font-weight:bold;border-bottom:1px solid #eee\">Leerwens</td><td style=\"padding:10px 20px;border-bottom:1px solid #eee\">@{triggerBody()?['leerwens']}</td></tr><tr><td style=\"padding:10px 20px;font-weight:bold\">Datum &amp; tijd</td><td style=\"padding:10px 20px\">@{triggerBody()?['datum']} om @{triggerBody()?['tijdstip']}</td></tr><tr style=\"background:#FFF3E0\"><td colspan=\"2\" style=\"padding:10px 20px;font-size:12px;color:#888\">Verstuurd vanuit de Online Leeromgeving Copilot in Dynamics 365 CE &bull; Vereniging Eigen Huis</td></tr></table>",
+              "Importance": "Normal",
+              "IsHtml": true
+            }
+          }
+        },
+        "Geef_HTTP_respons": {
+          "runAfter": {
+            "Stuur_aanmeldingsmail": ["Succeeded", "Failed"]
+          },
+          "type": "Response",
+          "kind": "Http",
+          "inputs": {
+            "statusCode": 200,
+            "headers": {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": "*"
+            },
+            "body": {
+              "status": "ok",
+              "message": "Aanmelding ontvangen"
+            }
+          }
+        }
+      },
+      "outputs": {}
+    }
+  }
+}

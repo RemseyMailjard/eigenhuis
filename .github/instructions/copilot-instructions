@@ -1,0 +1,8 @@
+This repository contains a frontend slide generator.
+
+Guidelines:
+- Generate slides as HTML
+- Use the templates in /templates
+- Apply styles from /styles
+- Animations must come from /animations
+- Slides should be responsive and presentation-ready

@@ -1,0 +1,2687 @@
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Copilot in Dynamics 365 CE — Online Leeromgeving</title>
+    <style>
+        /* ─── Reset & basis ───────────────────────────────── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: 16px;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Calibri, "Segoe UI", Arial, sans-serif;
+            background: #F5F5F5;
+            color: #1A1A4E;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ─── Kleurenpalet VEH ────────────────────────────── */
+        :root {
+            --paars: #3B2785;
+            --paars-dark: #2A1A65;
+            --oranje: #F07800;
+            --oranje-hov: #D96A00;
+            --wit: #FFFFFF;
+            --licht: #F5F5F5;
+            --lichtpaars: #EDE8F9;
+            --navy: #1A1A4E;
+            --grijs: #6B7280;
+            --border: #D1C8EE;
+            --groen: #166534;
+            --groen-bg: #DCFCE7;
+            --rood: #991B1B;
+            --rood-bg: #FEE2E2;
+        }
+
+        /* ─── Sidebar navigatie ───────────────────────────── */
+        #sidebar {
+            width: 260px;
+            min-width: 260px;
+            background: var(--paars);
+            color: var(--wit);
+            display: flex;
+            flex-direction: column;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-logo {
+            padding: 24px 20px 16px;
+            border-bottom: 3px solid var(--oranje);
+        }
+
+        .sidebar-logo .org-name {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--oranje);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .sidebar-logo .course-name {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--wit);
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+
+        #sidebar nav ul {
+            list-style: none;
+            padding: 12px 0;
+        }
+
+        #sidebar nav ul li a {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #C9BEF0;
+            font-size: 14px;
+            transition: background 0.15s, color 0.15s;
+            border-left: 3px solid transparent;
+        }
+
+        #sidebar nav ul li a:hover,
+        #sidebar nav ul li a.active {
+            background: rgba(240, 120, 0, 0.12);
+            color: var(--wit);
+            border-left-color: var(--oranje);
+        }
+
+        .nav-num {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 26px;
+            height: 26px;
+            background: var(--oranje);
+            color: var(--wit);
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .nav-quiz .nav-num {
+            background: var(--paars-dark);
+            border: 1px solid var(--oranje);
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 16px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            font-size: 12px;
+            color: #9B8FCC;
+        }
+
+        /* ─── Hoofdinhoud ─────────────────────────────────── */
+        #main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 0 60px;
+        }
+
+        /* ─── Secties ─────────────────────────────────────── */
+        .section {
+            display: none;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ─── Hero banner ─────────────────────────────────── */
+        .hero {
+            background: var(--paars);
+            color: var(--wit);
+            padding: 40px 48px 36px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 8px;
+            height: 100%;
+            background: var(--oranje);
+        }
+
+        .hero .module-num {
+            font-size: 64px;
+            font-weight: 900;
+            color: var(--oranje);
+            line-height: 1;
+            margin-bottom: 8px;
+            padding-left: 16px;
+        }
+
+        .hero h1 {
+            font-size: 28px;
+            font-weight: 700;
+            padding-left: 16px;
+            line-height: 1.2;
+        }
+
+        .hero p.subtitle {
+            font-size: 15px;
+            color: #C9BEF0;
+            padding-left: 16px;
+            margin-top: 8px;
+        }
+
+        /* ─── Content container ───────────────────────────── */
+        .content {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 36px 40px;
+        }
+
+        /* ─── Kaart ───────────────────────────────────────── */
+        .card {
+            background: var(--wit);
+            border-radius: 8px;
+            padding: 24px 28px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 4px rgba(59, 39, 133, 0.08);
+            border-left: 4px solid var(--paars);
+        }
+
+        .card.orange {
+            border-left-color: var(--oranje);
+        }
+
+        .card.green {
+            border-left-color: var(--groen);
+            background: var(--groen-bg);
+        }
+
+        .card.info {
+            border-left-color: var(--paars);
+            background: var(--lichtpaars);
+        }
+
+        .card h2 {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--paars);
+            margin-bottom: 12px;
+        }
+
+        .card.orange h2 {
+            color: var(--oranje);
+        }
+
+        .card p,
+        .card li {
+            font-size: 14px;
+            line-height: 1.65;
+        }
+
+        .card ul {
+            padding-left: 20px;
+        }
+
+        .card li {
+            margin-bottom: 6px;
+        }
+
+        /* ─── Promptbox ───────────────────────────────────── */
+        .prompt-box {
+            background: #1A1A4E;
+            color: #E8D5FF;
+            border-radius: 6px;
+            padding: 16px 20px;
+            font-family: "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.7;
+            margin: 12px 0 20px;
+            position: relative;
+            border-left: 4px solid var(--oranje);
+        }
+
+        .prompt-label {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--oranje);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 6px;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--oranje);
+            color: var(--wit);
+            border: none;
+            border-radius: 4px;
+            padding: 4px 10px;
+            font-size: 11px;
+            cursor: pointer;
+            font-family: Calibri, sans-serif;
+            transition: background 0.15s;
+        }
+
+        .copy-btn:hover {
+            background: var(--oranje-hov);
+        }
+
+        /* ─── Vergelijkingstabel ──────────────────────────── */
+        .compare-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 14px;
+        }
+
+        .compare-table th {
+            padding: 10px 14px;
+            text-align: left;
+            color: var(--wit);
+            font-weight: 700;
+        }
+
+        .compare-table th:first-child {
+            background: #AA0000;
+        }
+
+        .compare-table th:last-child {
+            background: #005500;
+        }
+
+        .compare-table td {
+            padding: 10px 14px;
+            vertical-align: top;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .compare-table tr:nth-child(even) td:first-child {
+            background: #FFF5F5;
+        }
+
+        .compare-table tr:nth-child(even) td:last-child {
+            background: #F0FFF0;
+        }
+
+        .compare-table tr:nth-child(odd) td:first-child {
+            background: #FFF0F0;
+        }
+
+        .compare-table tr:nth-child(odd) td:last-child {
+            background: #EAFAEA;
+        }
+
+        .compare-table td:first-child {
+            color: #880000;
+            font-style: italic;
+        }
+
+        .compare-table td:last-child {
+            color: #003300;
+        }
+
+        /* ─── Oefenvraag ──────────────────────────────────── */
+        .exercise {
+            background: var(--lichtpaars);
+            border: 1.5px solid var(--border);
+            border-radius: 8px;
+            padding: 20px 24px;
+            margin: 20px 0;
+        }
+
+        .exercise .ex-label {
+            font-size: 11px;
+            font-weight: bold;
+            color: var(--oranje);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 8px;
+        }
+
+        .exercise .scenario {
+            background: var(--wit);
+            border-left: 4px solid var(--paars);
+            padding: 12px 16px;
+            border-radius: 4px;
+            font-size: 14px;
+            font-style: italic;
+            margin-bottom: 14px;
+        }
+
+        .exercise ol {
+            padding-left: 22px;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        .exercise li {
+            margin-bottom: 6px;
+        }
+
+        /* ─── Antwoord reveal ─────────────────────────────── */
+        .reveal-btn {
+            background: transparent;
+            border: 2px solid var(--paars);
+            color: var(--paars);
+            border-radius: 6px;
+            padding: 8px 18px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 12px;
+            font-family: Calibri, sans-serif;
+            transition: all 0.15s;
+        }
+
+        .reveal-btn:hover {
+            background: var(--paars);
+            color: var(--wit);
+        }
+
+        .answer-box {
+            display: none;
+            background: var(--groen-bg);
+            border: 1.5px solid var(--groen);
+            border-radius: 6px;
+            padding: 14px 18px;
+            margin-top: 12px;
+            font-size: 14px;
+            color: var(--groen);
+            line-height: 1.65;
+        }
+
+        .answer-box.visible {
+            display: block;
+        }
+
+        /* ─── Data tabel ──────────────────────────────────── */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            margin: 16px 0;
+        }
+
+        .data-table th {
+            background: var(--paars);
+            color: var(--wit);
+            padding: 10px 14px;
+            text-align: left;
+        }
+
+        .data-table td {
+            padding: 9px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table tr:nth-child(even) td {
+            background: var(--lichtpaars);
+        }
+
+        .data-table .highlight td {
+            font-weight: bold;
+            color: var(--paars);
+        }
+
+        /* ─── Quiz ────────────────────────────────────────── */
+        .quiz-header {
+            background: var(--paars);
+            color: var(--wit);
+            padding: 40px 48px 36px;
+            border-left: 8px solid var(--oranje);
+        }
+
+        .quiz-header h1 {
+            font-size: 28px;
+            padding-left: 8px;
+        }
+
+        .quiz-header p {
+            font-size: 15px;
+            color: #C9BEF0;
+            padding-left: 8px;
+            margin-top: 8px;
+        }
+
+        .quiz-question {
+            background: var(--wit);
+            border-radius: 8px;
+            padding: 22px 26px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 4px rgba(59, 39, 133, 0.08);
+        }
+
+        .quiz-question .q-num {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--oranje);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 8px;
+        }
+
+        .quiz-question .q-text {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--navy);
+            margin-bottom: 14px;
+            line-height: 1.4;
+        }
+
+        .quiz-options label {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 9px 14px;
+            border-radius: 6px;
+            border: 1.5px solid var(--border);
+            margin-bottom: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: border-color 0.15s, background 0.15s;
+        }
+
+        .quiz-options label:hover {
+            border-color: var(--paars);
+            background: var(--lichtpaars);
+        }
+
+        .quiz-options input[type="radio"] {
+            margin-top: 2px;
+            accent-color: var(--paars);
+        }
+
+        .quiz-options label.correct {
+            border-color: var(--groen);
+            background: var(--groen-bg);
+            color: var(--groen);
+            font-weight: bold;
+        }
+
+        .quiz-options label.incorrect {
+            border-color: var(--rood);
+            background: var(--rood-bg);
+            color: var(--rood);
+        }
+
+        .quiz-feedback {
+            font-size: 13px;
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.ok {
+            background: var(--groen-bg);
+            color: var(--groen);
+        }
+
+        .quiz-feedback.no {
+            background: var(--rood-bg);
+            color: var(--rood);
+        }
+
+        .quiz-submit-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn-primary {
+            background: var(--paars);
+            color: var(--wit);
+            border: none;
+            border-radius: 6px;
+            padding: 12px 28px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: Calibri, sans-serif;
+            transition: background 0.15s;
+        }
+
+        .btn-primary:hover {
+            background: var(--paars-dark);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--paars);
+            border: 2px solid var(--paars);
+            border-radius: 6px;
+            padding: 10px 24px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: Calibri, sans-serif;
+            transition: all 0.15s;
+        }
+
+        .btn-secondary:hover {
+            background: var(--paars);
+            color: var(--wit);
+        }
+
+        .quiz-result {
+            background: var(--paars);
+            color: var(--wit);
+            border-radius: 8px;
+            padding: 28px 32px;
+            text-align: center;
+            margin-top: 24px;
+            display: none;
+        }
+
+        .quiz-result.show {
+            display: block;
+        }
+
+        .quiz-result .score {
+            font-size: 48px;
+            font-weight: 900;
+            color: var(--oranje);
+        }
+
+        .quiz-result .score-label {
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+
+        .quiz-result .feedback-text {
+            font-size: 14px;
+            color: #C9BEF0;
+        }
+
+        /* ─── Progress indicator ──────────────────────────── */
+        .progress-bar {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-bottom: 28px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--oranje);
+            border-radius: 2px;
+            transition: width 0.4s;
+        }
+
+        /* ─── Responsive ──────────────────────────────────── */
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+
+            #sidebar {
+                width: 100%;
+                min-width: unset;
+                height: auto;
+                position: static;
+            }
+
+            #sidebar nav ul {
+                display: flex;
+                flex-wrap: wrap;
+                padding: 8px;
+                gap: 4px;
+            }
+
+            #sidebar nav ul li a {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .hero {
+                padding: 24px 20px;
+            }
+
+            .hero .module-num {
+                font-size: 40px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+
+        /* ─── Welkom hero speciale stijl ──────────────────── */
+        .welcome-hero {
+            background: var(--paars);
+            padding: 52px 48px 44px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-hero::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 8px;
+            height: 100%;
+            background: var(--oranje);
+        }
+
+        .welcome-hero h1 {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--wit);
+            padding-left: 20px;
+            margin-bottom: 10px;
+        }
+
+        .welcome-hero .sub {
+            font-size: 16px;
+            color: #C9BEF0;
+            padding-left: 20px;
+        }
+
+        .welcome-hero .org {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--oranje);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding-left: 20px;
+            margin-bottom: 12px;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .module-card {
+            background: var(--wit);
+            border-radius: 8px;
+            padding: 16px 18px;
+            box-shadow: 0 1px 4px rgba(59, 39, 133, 0.08);
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s;
+            border-top: 4px solid var(--paars);
+            text-decoration: none;
+            display: block;
+        }
+
+        .module-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 39, 133, 0.15);
+        }
+
+        .module-card .mc-num {
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--oranje);
+        }
+
+        .module-card .mc-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--navy);
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+
+        .module-card.quiz-card {
+            border-top-color: var(--oranje);
+        }
+
+        .module-card.quiz-card .mc-num {
+            color: var(--paars);
+        }
+
+        /* ─── Introductie — pillar cards ──────────────────── */
+        .pillar-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 0 0 32px;
+        }
+
+        .pillar-card {
+            background: var(--wit);
+            border-radius: 8px;
+            padding: 0 18px 20px;
+            box-shadow: 0 1px 4px rgba(59, 39, 133, 0.08);
+            text-align: center;
+            transition: transform 0.15s, box-shadow 0.15s;
+            overflow: hidden;
+        }
+
+        .pillar-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 39, 133, 0.16);
+        }
+
+        .pillar-card .pc-top {
+            height: 6px;
+            margin: 0 -18px 18px;
+        }
+
+        .pillar-card .pc-icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .pillar-card .pc-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+
+        .pillar-card .pc-divider {
+            height: 2px;
+            background: var(--border);
+            border-radius: 1px;
+            margin: 8px 0 12px;
+        }
+
+        .pillar-card ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .pillar-card ul li {
+            margin-bottom: 6px;
+            padding-left: 18px;
+            position: relative;
+        }
+
+        .pillar-card ul li::before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--oranje);
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .pillar-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ─── Startpagina overlay ─────────────────────────── */
+        #start-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            display: flex;
+            min-height: 100vh;
+            background: var(--paars);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        #start-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-24px);
+        }
+
+        .start-left {
+            width: 42%;
+            background: var(--navy);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 52px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-left::after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 6px;
+            background: var(--oranje);
+        }
+
+        .start-left .sl-org {
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--oranje);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 20px;
+        }
+
+        .start-left h1 {
+            font-size: 36px;
+            font-weight: 900;
+            color: var(--wit);
+            line-height: 1.15;
+            margin-bottom: 16px;
+        }
+
+        .start-left h1 span {
+            color: var(--oranje);
+        }
+
+        .start-left p {
+            font-size: 14px;
+            color: #A8A0D8;
+            line-height: 1.7;
+            margin-bottom: 32px;
+        }
+
+        .start-pills {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .start-pills .pill {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            color: #C9BEF0;
+        }
+
+        .start-pills .pill::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--oranje);
+            flex-shrink: 0;
+        }
+
+        .start-right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 52px;
+            background: var(--wit);
+        }
+
+        .start-form-wrap {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .start-form-wrap h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+
+        .start-form-wrap .sf-sub {
+            font-size: 13px;
+            color: var(--grijs);
+            margin-bottom: 28px;
+        }
+
+        .sf-group {
+            margin-bottom: 20px;
+        }
+
+        .sf-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--navy);
+            margin-bottom: 6px;
+        }
+
+        .sf-group input,
+        .sf-group select,
+        .sf-group textarea {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1.5px solid var(--border);
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: Calibri, "Segoe UI", Arial, sans-serif;
+            color: var(--navy);
+            background: var(--wit);
+            transition: border-color 0.15s, box-shadow 0.15s;
+            outline: none;
+        }
+
+        .sf-group input:focus,
+        .sf-group select:focus,
+        .sf-group textarea:focus {
+            border-color: var(--paars);
+            box-shadow: 0 0 0 3px rgba(59, 39, 133, 0.12);
+        }
+
+        .sf-group textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        .sf-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231A1A4E' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 14px center;
+            padding-right: 36px;
+        }
+
+        #start-submit {
+            width: 100%;
+            padding: 13px;
+            background: var(--paars);
+            color: var(--wit);
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: Calibri, sans-serif;
+            transition: background 0.15s;
+            margin-top: 4px;
+        }
+
+        #start-submit:hover {
+            background: var(--paars-dark);
+        }
+
+        #start-submit:disabled {
+            background: #9B8FCC;
+            cursor: default;
+        }
+
+        .sf-msg {
+            margin-top: 12px;
+            font-size: 13px;
+            text-align: center;
+            min-height: 20px;
+            color: var(--grijs);
+        }
+
+        .sf-msg.error {
+            color: var(--rood);
+        }
+
+        @media (max-width: 768px) {
+            #start-overlay {
+                flex-direction: column;
+            }
+
+            .start-left {
+                width: 100%;
+                padding: 36px 24px 48px;
+            }
+
+            .start-right {
+                padding: 32px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ═══════ STARTPAGINA OVERLAY ═══════ -->
+    <div id="start-overlay">
+        <div class="start-left">
+            <div class="sl-org">Vereniging Eigen Huis</div>
+            <h1>Copilot in<br><span>Dynamics 365 CE</span></h1>
+            <p>Welkom bij de online leeromgeving. Vul je gegevens in om te starten. Dit helpt ons de training te
+                verbeteren en je achteraf materiaal toe te sturen.</p>
+            <div class="start-pills">
+                <div class="pill">7 modules over AI in jouw dagelijkse werk</div>
+                <div class="pill">Praktijkopdrachten en kopieerbare prompts</div>
+                <div class="pill">Kennisquiz aan het einde</div>
+                <div class="pill">Bonus: bouw je eigen Copilot-agent</div>
+            </div>
+        </div>
+        <div class="start-right">
+            <div class="start-form-wrap">
+                <h2>Aanmelden voor de training</h2>
+                <p class="sf-sub">Je gegevens worden alleen gebruikt voor naslag en begeleiding.</p>
+                <form id="start-form" onsubmit="submitStartForm(event)" novalidate>
+                    <div class="sf-group">
+                        <label for="sf-naam">Naam <span style="color:var(--oranje)">*</span></label>
+                        <input id="sf-naam" type="text" placeholder="Voornaam achternaam" required
+                            autocomplete="name" />
+                    </div>
+                    <div class="sf-group">
+                        <label for="sf-functie">Functie <span style="color:var(--oranje)">*</span></label>
+                        <select id="sf-functie" required>
+                            <option value="">— Kies je functie —</option>
+                            <option>Klantadviseur</option>
+                            <option>Servicemedewerker</option>
+                            <option>Casebehandelaar</option>
+                            <option>CRM-beheerder</option>
+                            <option>Marketingmedewerker</option>
+                            <option>Teamleider / manager</option>
+                            <option>Overig</option>
+                        </select>
+                    </div>
+                    <div class="sf-group">
+                        <label for="sf-email">E-mailadres <span style="color:var(--oranje)">*</span></label>
+                        <input id="sf-email" type="email" placeholder="naam@eigenhuis.nl" required
+                            autocomplete="email" />
+                    </div>
+                    <div class="sf-group">
+                        <label for="sf-leerwens">Wat wil je graag leren?</label>
+                        <textarea id="sf-leerwens"
+                            placeholder="Bijv. sneller e-mails afhandelen, beter prompts schrijven…"></textarea>
+                    </div>
+                    <button type="submit" id="start-submit">Start de training &nbsp;→</button>
+                    <div class="sf-msg" id="sf-msg"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════ SIDEBAR ═══════ -->
+    <aside id="sidebar">
+        <div class="sidebar-logo">
+            <div class="org-name">Vereniging Eigen Huis</div>
+            <div class="course-name">Copilot in<br>Dynamics 365 CE</div>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#" onclick="show('welkom')" id="nav-welkom" class="active">
+                        <span class="nav-num">🏠</span> Welkom
+                    </a></li>
+                <li><a href="#" onclick="show('intro')" id="nav-intro">
+                        <span class="nav-num">✦</span> Wat ga je leren?
+                    </a></li>
+                <li><a href="#" onclick="show('m01')" id="nav-m01">
+                        <span class="nav-num">01</span> Introductie Copilot
+                    </a></li>
+                <li><a href="#" onclick="show('m02')" id="nav-m02">
+                        <span class="nav-num">02</span> Klachtafhandeling
+                    </a></li>
+                <li><a href="#" onclick="show('m03')" id="nav-m03">
+                        <span class="nav-num">03</span> E-mailafhandeling
+                    </a></li>
+                <li><a href="#" onclick="show('m04')" id="nav-m04">
+                        <span class="nav-num">04</span> Marketing & communicatie
+                    </a></li>
+                <li><a href="#" onclick="show('m05')" id="nav-m05">
+                        <span class="nav-num">05</span> Marktsegmentatie
+                    </a></li>
+                <li><a href="#" onclick="show('m06')" id="nav-m06">
+                        <span class="nav-num">06</span> Prompttechnieken
+                    </a></li>
+                <li><a href="#" onclick="show('m07')" id="nav-m07">
+                        <span class="nav-num">07</span> Eindcase
+                    </a></li>
+                <li><a href="#" onclick="show('agent')" id="nav-agent">
+                        <span class="nav-num">🤖</span> Bouw een agent
+                    </a></li>
+                <li><a href="#" onclick="show('quiz')" id="nav-quiz" class="nav-quiz">
+                        <span class="nav-num">✓</span> Kennisquiz
+                    </a></li>
+            </ul>
+        </nav>
+        <div class="sidebar-footer">Training 2026 &bull; VEH &bull; Offline beschikbaar</div>
+    </aside>
+
+    <!-- ═══════ MAIN ═══════ -->
+    <main id="main">
+
+        <!-- WELKOM -->
+        <section id="welkom" class="section active">
+            <div class="welcome-hero">
+                <div class="org">Vereniging Eigen Huis</div>
+                <h1>Copilot in Dynamics 365 CE</h1>
+                <p class="sub">Online leeromgeving &bull; 7 modules &bull; Kennisquiz</p>
+            </div>
+            <div class="content">
+                <div class="card info">
+                    <h2>Welkom bij de online leeromgeving!</h2>
+                    <p>Deze omgeving is een aanvulling op de klassikale training. Je vindt hier per module de
+                        kernpunten, uitgewerkte promptvoorbeelden en een oefenvraag om te verwerken.</p>
+                    <p style="margin-top:10px">Sluit af met de <strong>Kennisquiz</strong> om te checken wat je hebt
+                        onthouden.</p>
+                </div>
+
+                <div class="card orange">
+                    <h2>Na deze training kun je</h2>
+                    <ul>
+                        <li>Begrijpen wat Copilot is en hoe het werkt in Dynamics 365</li>
+                        <li>Copilot gebruiken om cases sneller te analyseren</li>
+                        <li>E-mails en reacties efficiënter schrijven</li>
+                        <li>Copilot inzetten voor marketing en communicatie</li>
+                        <li>Effectieve prompts schrijven voor betere AI-resultaten</li>
+                    </ul>
+                </div>
+
+                <div style="text-align:center; margin:24px 0 8px">
+                    <button class="btn-primary" onclick="show('intro')" style="padding:13px 36px;font-size:16px">▶ Start
+                        de training</button>
+                </div>
+
+                <h2 style="margin-bottom:16px; color:var(--paars)">Modules</h2>
+                <div class="module-grid">
+                    <a class="module-card" href="#" onclick="show('intro')" style="border-top-color:var(--oranje)">
+                        <div class="mc-num" style="color:var(--paars)">✦</div>
+                        <div class="mc-title">Wat ga je leren? — Introductie</div>
+                    </a>
+                    <a class="module-card" href="#" onclick="show('m01')">
+                        <div class="mc-num">01</div>
+                        <div class="mc-title">Introductie Copilot in Dynamics</div>
+                    </a>
+                    <a class="module-card" href="#" onclick="show('m02')">
+                        <div class="mc-num">02</div>
+                        <div class="mc-title">Copilot in klachtafhandeling</div>
+                    </a>
+                    <a class="module-card" href="#" onclick="show('m03')">
+                        <div class="mc-num">03</div>
+                        <div class="mc-title">E-mailafhandeling met Copilot</div>
+                    </a>
+                    <a class="module-card" href="#" onclick="show('m04')">
+                        <div class="mc-num">04</div>
+                        <div class="mc-title">Marketing en communicatie</div>
+                    </a>
+                    <a class="module-card" href="#" onclick="show('m05')">
+                        <div class="mc-num">05</div>
+                        <div class="mc-title">Marketingsegmentatie met Copilot</div>
+                    </a>
+                    <a class="module-card" href="#" onclick="show('m06')">
+                        <div class="mc-num">06</div>
+                        <div class="mc-title">Prompttechnieken</div>
+                    </a>
+                    <a class="module-card" href="#" onclick="show('m07')">
+                        <div class="mc-num">07</div>
+                        <div class="mc-title">Eindcase</div>
+                    </a>
+                    <a class="module-card" href="#" onclick="show('agent')" style="border-top-color:#1A1A4E">
+                        <div class="mc-num" style="color:#1A1A4E">🤖</div>
+                        <div class="mc-title">Bonus — Bouw een eigen Copilot-agent</div>
+                    </a>
+                    <a class="module-card quiz-card" href="#" onclick="show('quiz')">
+                        <div class="mc-num">✓</div>
+                        <div class="mc-title">Kennisquiz — 10 vragen</div>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- INTRODUCTIE: Wat ga je leren? -->
+        <section id="intro" class="section">
+            <div class="hero">
+                <div class="module-num" style="font-size:40px;line-height:1.1">Wat ga je<br>leren?</div>
+                <h1>Introductie Copilot in Dynamics 365</h1>
+                <p class="subtitle">Drie leerthema's — leer sneller, beter en slimmer werken met AI</p>
+            </div>
+            <div class="content">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:5%"></div>
+                </div>
+
+                <div class="pillar-grid">
+                    <div class="pillar-card">
+                        <div class="pc-top" style="background:#1A1A4E"></div>
+                        <span class="pc-icon">⚡</span>
+                        <div class="pc-title" style="color:#1A1A4E">Sneller werken</div>
+                        <div class="pc-divider"></div>
+                        <ul>
+                            <li>Samenvatten van klantcontact</li>
+                            <li>Overzicht van klantcases</li>
+                        </ul>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="pc-top" style="background:var(--paars)"></div>
+                        <span class="pc-icon">✍️</span>
+                        <div class="pc-title" style="color:var(--paars)">Beter communiceren</div>
+                        <div class="pc-divider"></div>
+                        <ul>
+                            <li>Conceptantwoorden genereren</li>
+                            <li>Toon aanpassen</li>
+                        </ul>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="pc-top" style="background:var(--oranje)"></div>
+                        <span class="pc-icon">🧠</span>
+                        <div class="pc-title" style="color:var(--oranje)">Slimmer werken met AI</div>
+                        <div class="pc-divider"></div>
+                        <ul>
+                            <li>Effectieve prompts schrijven</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="card" style="border-left-color:#1A1A4E">
+                    <h2 style="color:#1A1A4E">⚡ Sneller werken</h2>
+                    <p style="margin-bottom:12px;font-size:14px">Bespaar tijd op routinewerk zodat je je kunt focussen
+                        op wat écht telt voor het lid.</p>
+                    <ul>
+                        <li><strong>Samenvatten van klantcontact:</strong> Lange gesprekshistorie in één klik samengevat
+                            — altijd direct de kern.</li>
+                        <li><strong>Overzicht van klantcases:</strong> Direct zicht op openstaande cases, prioriteiten
+                            en voortgang.</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h2>✍️ Beter communiceren</h2>
+                    <p style="margin-bottom:12px;font-size:14px">Consistente en professionele communicatie, ook in
+                        drukke periodes.</p>
+                    <ul>
+                        <li><strong>Conceptantwoorden genereren:</strong> Copilot schrijft een eerste versie op basis
+                            van de case — jij past aan en verstuurt.</li>
+                        <li><strong>Toon aanpassen:</strong> Formeel, begripvol of eenvoudig — één klik bepaalt de stijl
+                            van je bericht.</li>
+                    </ul>
+                </div>
+
+                <div class="card orange">
+                    <h2>🧠 Slimmer werken met AI</h2>
+                    <p style="margin-bottom:12px;font-size:14px">Betere vragen = betere antwoorden. Leer de anatomie van
+                        een effectieve prompt.</p>
+                    <ul>
+                        <li><strong>Effectieve prompts schrijven:</strong> Gebruik de 4-delige formule voor optimale
+                            AI-resultaten.</li>
+                    </ul>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;align-items:center">
+                        <span
+                            style="background:var(--navy);color:white;padding:7px 16px;border-radius:4px;font-size:13px;font-weight:bold">Context</span>
+                        <span style="color:var(--navy);font-size:18px;font-weight:bold">+</span>
+                        <span
+                            style="background:var(--paars);color:white;padding:7px 16px;border-radius:4px;font-size:13px;font-weight:bold">Taak</span>
+                        <span style="color:var(--navy);font-size:18px;font-weight:bold">+</span>
+                        <span
+                            style="background:var(--navy);color:white;padding:7px 16px;border-radius:4px;font-size:13px;font-weight:bold">Structuur</span>
+                        <span style="color:var(--navy);font-size:18px;font-weight:bold">+</span>
+                        <span
+                            style="background:var(--oranje);color:white;padding:7px 16px;border-radius:4px;font-size:13px;font-weight:bold">Toon</span>
+                    </div>
+                </div>
+
+                <div class="card info">
+                    <h2>Jouw leerdoelen in één oogopslag</h2>
+                    <table class="data-table" style="margin-top:12px">
+                        <thead>
+                            <tr>
+                                <th>Thema</th>
+                                <th>Onderdelen</th>
+                                <th>Resultaat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>⚡ Sneller werken</strong></td>
+                                <td>Samenvatten · Klantoverzicht</td>
+                                <td>Minder tijd kwijt aan zoeken en lezen</td>
+                            </tr>
+                            <tr>
+                                <td><strong>✍️ Beter communiceren</strong></td>
+                                <td>Conceptantwoorden · Toon</td>
+                                <td>Consistente en snelle klantcommunicatie</td>
+                            </tr>
+                            <tr>
+                                <td><strong>🧠 Slimmer werken met AI</strong></td>
+                                <td>Prompttechnieken</td>
+                                <td>Copilot effectiever en gerichter inzetten</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card" style="background:var(--paars);border-left-color:var(--oranje);text-align:center">
+                    <p style="color:white;font-size:15px;font-weight:bold;line-height:1.6">Na deze training werk jij
+                        <em>met</em> AI — niet <em>voor</em> AI.<br>Copilot ondersteunt, jij beslist.
+                    </p>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;margin-top:12px">
+                    <button class="btn-secondary" onclick="show('welkom')">← Terug naar overzicht</button>
+                    <button class="btn-primary" onclick="show('m01')">Start module 01 →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 01 -->
+        <section id="m01" class="section">
+            <div class="hero">
+                <div class="module-num">01</div>
+                <h1>Introductie Copilot in Dynamics</h1>
+                <p class="subtitle">Wat is Copilot en wat kan het voor jou betekenen?</p>
+            </div>
+            <div class="content">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:14%"></div>
+                </div>
+
+                <div class="card">
+                    <h2>Kernpunten</h2>
+                    <ul>
+                        <li>Copilot is een AI-assistent, ingebouwd in Microsoft-producten</li>
+                        <li>Copilot begrijpt tekst en <strong>werkt direct met jouw CRM-data</strong> in Dynamics 365
+                        </li>
+                        <li>Het kan klachten samenvatten, antwoorden genereren en patronen herkennen</li>
+                        <li>Het grote verschil met ChatGPT: Dynamics Copilot gebruikt <strong>échte klantdata</strong>
+                            uit het CRM</li>
+                        <li>Jij blijft altijd verantwoordelijk — Copilot ondersteunt, beslist niet</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h2>Copilot vs. andere AI-tools</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Tool</th>
+                                <th>Gebruik</th>
+                                <th>Werkt met CRM-data?</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>ChatGPT</td>
+                                <td>Algemene AI-chatbot</td>
+                                <td>Nee</td>
+                            </tr>
+                            <tr>
+                                <td>Microsoft 365 Copilot</td>
+                                <td>Word, Outlook, Teams</td>
+                                <td>Gedeeltelijk</td>
+                            </tr>
+                            <tr class="highlight">
+                                <td>Dynamics 365 Copilot</td>
+                                <td>CRM — klanten, cases, e-mail</td>
+                                <td>✅ Ja, direct</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card orange">
+                    <h2>Wat kan Copilot doen in Dynamics?</h2>
+                    <ul>
+                        <li>Klachten samenvatten — overzicht van een complexe case in seconden</li>
+                        <li>Contacthistorie analyseren — recente interacties snel begrijpen</li>
+                        <li>Conceptantwoorden genereren op basis van de case</li>
+                        <li>E-mails samenvatten — snel inzicht in inkomende berichten</li>
+                        <li>Marketingsegmenten voorstellen op basis van CRM-data</li>
+                    </ul>
+                </div>
+
+                <div class="exercise">
+                    <div class="ex-label">Oefenvraag</div>
+                    <p><strong>Wat is het belangrijkste verschil tussen ChatGPT en Dynamics Copilot?</strong></p>
+                    <button class="reveal-btn" onclick="toggleAnswer(this)">Toon antwoord</button>
+                    <div class="answer-box">
+                        Dynamics Copilot werkt direct met de klant- en casedata die al in jouw CRM staat. ChatGPT is een
+                        algemene chatbot zonder toegang tot jouw organisatiedata. Dynamics Copilot is daardoor
+                        contextueel en privacyveilig voor jouw werk.
+                    </div>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;margin-top:12px">
+                    <button class="btn-secondary" onclick="show('intro')">← Vorige</button>
+                    <button class="btn-primary" onclick="show('m02')">Volgende module →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 02 -->
+        <section id="m02" class="section">
+            <div class="hero">
+                <div class="module-num">02</div>
+                <h1>Copilot in klachtafhandeling</h1>
+                <p class="subtitle">Snel overzicht bij complexe cases</p>
+            </div>
+            <div class="content">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:28%"></div>
+                </div>
+
+                <div class="card">
+                    <h2>Kernpunten</h2>
+                    <ul>
+                        <li>Cases bevatten lange beschrijvingen, meerdere e-mails en eerdere contactmomenten</li>
+                        <li>Copilot kan in seconden een helder overzicht genereren van de kernklacht</li>
+                        <li>Mogelijke vervolgstappen worden automatisch voorgesteld op basis van de context</li>
+                        <li><strong>Controleer altijd</strong> of de samenvatting klopt met de werkelijkheid</li>
+                    </ul>
+                </div>
+
+                <div class="card orange">
+                    <h2>Promptvoorbeelden — Case samenvatten</h2>
+                    <div class="prompt-label">Prompt kopiëren</div>
+                    <div class="prompt-box" id="p02a">
+                        Vat de kern van deze klacht samen in maximaal 3 bullets.<br>
+                        Noem:<br>
+                        - het probleem<br>
+                        - wat het lid al probeerde<br>
+                        - wat het lid als oplossing verwacht
+                        <button class="copy-btn" onclick="copyPrompt('p02a')">Kopieer</button>
+                    </div>
+                    <div class="prompt-label">Prompt: vervolgstappen</div>
+                    <div class="prompt-box" id="p02b">
+                        Je bent adviseur bij Vereniging Eigen Huis.<br>
+                        Stel drie mogelijke vervolgstappen voor op basis van deze case.<br>
+                        Houd rekening met:<br>
+                        - de rechten van het lid als consument<br>
+                        - de rol van VEH als adviseur (niet uitvoerder)
+                        <button class="copy-btn" onclick="copyPrompt('p02b')">Kopieer</button>
+                    </div>
+                </div>
+
+                <!-- ── Oefening 1: Trustpilot klacht ─────────────────── -->
+                <div class="exercise">
+                    <div class="ex-label">⭐ Oefening 1 — Reageren op een Trustpilot-klacht met AI</div>
+
+                    <p style="font-size:14px;margin-bottom:16px">
+                        Klanten die ontevreden zijn laten ook buiten Dynamics sporen achter — bijvoorbeeld op
+                        Trustpilot. In deze oefening gebruik je AI om een echte 1-ster review te analyseren en er
+                        professioneel op te reageren.
+                    </p>
+
+                    <!-- Stap 1 -->
+                    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px">
+                        <span
+                            style="background:var(--oranje);color:white;font-weight:bold;font-size:13px;padding:4px 10px;border-radius:4px;flex-shrink:0">Stap
+                            1</span>
+                        <div>
+                            <strong style="font-size:14px;color:var(--navy)">Zoek een klacht op Trustpilot</strong>
+                            <p style="font-size:13px;margin-top:4px">Ga naar de pagina met 1-ster reviews van Vereniging
+                                Eigen Huis:</p>
+                            <a href="https://nl.trustpilot.com/review/www.eigenhuis.nl?stars=1" target="_blank"
+                                rel="noopener"
+                                style="display:inline-block;margin-top:6px;background:var(--lichtpaars);color:var(--paars);border:1.5px solid var(--border);border-radius:4px;padding:6px 14px;font-size:13px;font-weight:bold;text-decoration:none;">
+                                🔗 Open Trustpilot — 1-ster reviews
+                            </a>
+                            <p style="font-size:13px;margin-top:8px">Kies één review en <strong>kopieer de tekst van de
+                                    klacht</strong>.</p>
+                        </div>
+                    </div>
+
+                    <!-- Stap 2 -->
+                    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px">
+                        <span
+                            style="background:var(--paars);color:white;font-weight:bold;font-size:13px;padding:4px 10px;border-radius:4px;flex-shrink:0">Stap
+                            2</span>
+                        <div style="flex:1">
+                            <strong style="font-size:14px;color:var(--navy)">Analyseer de klacht met Copilot</strong>
+                            <p style="font-size:13px;margin-top:4px">Gebruik onderstaande prompt. Plak de reviewtekst
+                                daarna in Copilot.</p>
+                            <div class="prompt-label" style="margin-top:8px">Prompt kopiëren</div>
+                            <div class="prompt-box" id="p02tp1">
+                                Analyseer deze review en geef:<br>
+                                - de belangrijkste klacht<br>
+                                - mogelijke oorzaak van de frustratie<br>
+                                - wat wij als organisatie kunnen doen
+                                <button class="copy-btn" onclick="copyPrompt('p02tp1')">Kopieer</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stap 3 -->
+                    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:14px">
+                        <span
+                            style="background:var(--paars);color:white;font-weight:bold;font-size:13px;padding:4px 10px;border-radius:4px;flex-shrink:0">Stap
+                            3</span>
+                        <div style="flex:1">
+                            <strong style="font-size:14px;color:var(--navy)">Schrijf een reactie</strong>
+                            <p style="font-size:13px;margin-top:4px">Laat Copilot een openbare reactie opstellen die op
+                                Trustpilot geplaatst kan worden.</p>
+                            <div class="prompt-label" style="margin-top:8px">Prompt kopiëren</div>
+                            <div class="prompt-box" id="p02tp2">
+                                Je werkt bij Vereniging Eigen Huis.<br><br>
+                                Schrijf een professionele reactie op deze review.<br>
+                                Toon begrip en nodig de klant uit om contact op te nemen.
+                                <button class="copy-btn" onclick="copyPrompt('p02tp2')">Kopieer</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stap 4 -->
+                    <div style="display:flex;gap:10px;align-items:flex-start;margin-bottom:18px">
+                        <span
+                            style="background:var(--navy);color:white;font-weight:bold;font-size:13px;padding:4px 10px;border-radius:4px;flex-shrink:0">Stap
+                            4</span>
+                        <div style="flex:1">
+                            <strong style="font-size:14px;color:var(--navy)">Verbeter de toon</strong>
+                            <p style="font-size:13px;margin-top:4px">Geef Copilot een vervolg-prompt om de reactie
+                                persoonlijker te maken.</p>
+                            <div class="prompt-label" style="margin-top:8px">Prompt kopiëren</div>
+                            <div class="prompt-box" id="p02tp3">
+                                Herschrijf deze reactie zodat deze empathischer en persoonlijker klinkt.<br>
+                                Maximaal 120 woorden.
+                                <button class="copy-btn" onclick="copyPrompt('p02tp3')">Kopieer</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bespreek daarna -->
+                    <div style="background:var(--lichtpaars);border-radius:6px;padding:14px 16px;margin-top:4px">
+                        <strong style="font-size:13px;color:var(--paars);display:block;margin-bottom:8px">💬 Bespreek
+                            daarna</strong>
+                        <ul style="font-size:13px;padding-left:18px;line-height:1.8">
+                            <li>Wat was de kern van de klacht?</li>
+                            <li>Hoe kan AI helpen bij het schrijven van reacties?</li>
+                        </ul>
+                    </div>
+
+                    <button class="reveal-btn" onclick="toggleAnswer(this)" style="margin-top:16px">Toon
+                        voorbeeldreactie</button>
+                    <div class="answer-box">
+                        <strong>Voorbeeld professionele reactie (stap 3 + 4 gecombineerd):</strong><br><br>
+                        "Dank u voor uw eerlijke feedback. Het spijt ons oprecht dat u een teleurstellende ervaring
+                        heeft
+                        gehad. Wij begrijpen uw frustratie en nemen dit serieus. Wij helpen dagelijks duizenden
+                        huiseigenaren, maar dat neemt niet weg dat uw situatie onze volledige aandacht verdient.
+                        Neemt u contact met ons op via <em>info@eigenhuis.nl</em> zodat we samen naar een oplossing
+                        kunnen zoeken? We horen graag van u."
+                    </div>
+                </div>
+
+                <!-- ── Oefening 2: bestaande case ────────────────────── -->
+                <div class="exercise">
+                    <div class="ex-label">Oefening 2 — Praktijkopdracht: Case in Dynamics</div>
+                    <div class="scenario">
+                        "Een lid meldt dat een aannemer slecht werk heeft geleverd en niet meer reageert. Het gaat om
+                        gevelbekleding die loslaat na isolatiewerkzaamheden."
+                    </div>
+                    <ol>
+                        <li>Open de case in Dynamics 365</li>
+                        <li>Laat Copilot de klacht samenvatten in 3 bullets</li>
+                        <li>Laat Copilot mogelijke vervolgstappen voorstellen</li>
+                        <li>Beoordeel: wat klopt goed? Wat ontbreekt of is onjuist?</li>
+                    </ol>
+                    <button class="reveal-btn" onclick="toggleAnswer(this)">Toon modelsamenvatting</button>
+                    <div class="answer-box">
+                        <strong>Modelsamenvatting:</strong><br>
+                        • Probleem: aannemer leverde slecht werk (gevelbekleding loslaat) na isolatiewerkzaamheden<br>
+                        • Ondernomen: lid heeft contact geprobeerd maar aannemer reageert niet<br>
+                        • Gewenst: herstelwerkzaamheden of compensatie<br><br>
+                        <strong>Mogelijke vervolgstap:</strong> VEH kan adviseren over consumentenrecht (Wet koop),
+                        aanschrijven van de aannemer via aangetekende brief en eventueel verwijzen naar
+                        geschillencommissie.
+                    </div>
+                </div>
+
+                <!-- ── Oefening 3: Copilot Case Challenge ───────────── -->
+                <div class="exercise" style="border-color:var(--paars);background:white">
+                    <div class="ex-label" style="color:var(--paars);font-size:12px">🏆 Oefening 3 — De Copilot Case
+                        Challenge</div>
+
+                    <p style="font-size:14px;font-weight:bold;color:var(--navy);margin:8px 0 6px">Doel van de oefening
+                    </p>
+                    <ul style="font-size:13px;padding-left:18px;margin-bottom:16px;line-height:1.8">
+                        <li>Klachten snel analyseren</li>
+                        <li>Een professionele reactie formuleren</li>
+                        <li>De toon van communicatie verbeteren</li>
+                        <li>Een klacht omzetten naar een CRM-case</li>
+                    </ul>
+
+                    <div class="scenario" style="border-left-color:var(--paars)">
+                        <strong>Scenario:</strong> Je werkt als adviseur bij Vereniging Eigen Huis. Een klant heeft een
+                        negatieve review geplaatst op Trustpilot. Jouw taak: analyseer de klacht, schrijf een
+                        professionele reactie en leg de klacht vast als CRM-case — met behulp van Copilot.
+                    </div>
+
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 20px;font-size:13px;font-weight:bold">
+                        <span
+                            style="background:var(--lichtpaars);color:var(--paars);padding:5px 12px;border-radius:20px;border:1.5px solid var(--border)">1️⃣
+                            Analyseer</span>
+                        <span style="color:var(--grijs)">→</span>
+                        <span
+                            style="background:var(--lichtpaars);color:var(--paars);padding:5px 12px;border-radius:20px;border:1.5px solid var(--border)">2️⃣
+                            CRM-samenvatting</span>
+                        <span style="color:var(--grijs)">→</span>
+                        <span
+                            style="background:var(--lichtpaars);color:var(--paars);padding:5px 12px;border-radius:20px;border:1.5px solid var(--border)">3️⃣
+                            Schrijf reactie</span>
+                        <span style="color:var(--grijs)">→</span>
+                        <span
+                            style="background:var(--lichtpaars);color:var(--paars);padding:5px 12px;border-radius:20px;border:1.5px solid var(--border)">4️⃣
+                            Verbeter toon</span>
+                    </div>
+
+                    <!-- Stap 1 -->
+                    <div style="border-left:4px solid var(--oranje);padding-left:14px;margin-bottom:18px">
+                        <p style="font-size:13px;font-weight:bold;color:var(--oranje);margin-bottom:4px">Stap 1 — Zoek
+                            een review</p>
+                        <p style="font-size:13px;margin-bottom:8px">Ga naar de Trustpilot-pagina met 1-ster reviews en
+                            kopieer een review-tekst:</p>
+                        <a href="https://nl.trustpilot.com/review/www.eigenhuis.nl?stars=1" target="_blank"
+                            rel="noopener"
+                            style="display:inline-block;background:var(--lichtpaars);color:var(--paars);border:1.5px solid var(--border);border-radius:4px;padding:6px 14px;font-size:13px;font-weight:bold;text-decoration:none;">
+                            🔗 Open Trustpilot — 1-ster reviews
+                        </a>
+                    </div>
+
+                    <!-- Stap 2 -->
+                    <div style="border-left:4px solid var(--paars);padding-left:14px;margin-bottom:18px">
+                        <p style="font-size:13px;font-weight:bold;color:var(--paars);margin-bottom:4px">Stap 2 —
+                            Analyseer de klacht met Copilot</p>
+                        <div class="prompt-label">Prompt kopiëren</div>
+                        <div class="prompt-box" id="p02cc1">
+                            Analyseer deze review.<br><br>
+                            Geef:<br>
+                            - de belangrijkste klacht<br>
+                            - mogelijke oorzaak van de frustratie<br>
+                            - wat Vereniging Eigen Huis kan doen om dit op te lossen
+                            <button class="copy-btn" onclick="copyPrompt('p02cc1')">Kopieer</button>
+                        </div>
+                    </div>
+
+                    <!-- Stap 3 -->
+                    <div style="border-left:4px solid var(--paars);padding-left:14px;margin-bottom:18px">
+                        <p style="font-size:13px;font-weight:bold;color:var(--paars);margin-bottom:4px">Stap 3 — Maak
+                            een CRM-samenvatting</p>
+                        <p style="font-size:13px;margin-bottom:6px">Leg de klacht vast als case in Dynamics — gebruik
+                            Copilot voor de samenvatting.</p>
+                        <div class="prompt-label">Prompt kopiëren</div>
+                        <div class="prompt-box" id="p02cc2">
+                            Je bent adviseur bij Vereniging Eigen Huis.<br><br>
+                            Vat deze review samen zodat deze kan worden toegevoegd als CRM-case.<br>
+                            Gebruik maximaal 3 bulletpoints.
+                            <button class="copy-btn" onclick="copyPrompt('p02cc2')">Kopieer</button>
+                        </div>
+                    </div>
+
+                    <!-- Stap 4 -->
+                    <div style="border-left:4px solid var(--paars);padding-left:14px;margin-bottom:18px">
+                        <p style="font-size:13px;font-weight:bold;color:var(--paars);margin-bottom:4px">Stap 4 — Schrijf
+                            een reactie op de review</p>
+                        <div class="prompt-label">Prompt kopiëren</div>
+                        <div class="prompt-box" id="p02cc3">
+                            Schrijf een professionele reactie op deze Trustpilot review.<br><br>
+                            De reactie moet:<br>
+                            - begrip tonen voor de ervaring van de klant<br>
+                            - professioneel en vriendelijk zijn<br>
+                            - de klant uitnodigen om contact op te nemen
+                            <button class="copy-btn" onclick="copyPrompt('p02cc3')">Kopieer</button>
+                        </div>
+                    </div>
+
+                    <!-- Stap 5 -->
+                    <div style="border-left:4px solid var(--navy);padding-left:14px;margin-bottom:18px">
+                        <p style="font-size:13px;font-weight:bold;color:var(--navy);margin-bottom:4px">Stap 5 — Verbeter
+                            de toon</p>
+                        <div class="prompt-label">Prompt kopiëren</div>
+                        <div class="prompt-box" id="p02cc4">
+                            Herschrijf deze reactie zodat deze:<br>
+                            - empathischer klinkt<br>
+                            - persoonlijker is<br>
+                            - maximaal 120 woorden bevat
+                            <button class="copy-btn" onclick="copyPrompt('p02cc4')">Kopieer</button>
+                        </div>
+                    </div>
+
+                    <!-- Stap 6 -->
+                    <div style="border-left:4px solid var(--navy);padding-left:14px;margin-bottom:18px">
+                        <p style="font-size:13px;font-weight:bold;color:var(--navy);margin-bottom:4px">Stap 6 —
+                            Optimaliseer voor publicatie op Trustpilot</p>
+                        <div class="prompt-label">Prompt kopiëren</div>
+                        <div class="prompt-box" id="p02cc5">
+                            Maak deze reactie geschikt voor publicatie op Trustpilot.<br><br>
+                            Gebruik een vriendelijke toon en nodig de klant uit om contact op te nemen.
+                            <button class="copy-btn" onclick="copyPrompt('p02cc5')">Kopieer</button>
+                        </div>
+                    </div>
+
+                    <!-- Bonus -->
+                    <div
+                        style="background:#FFF8F0;border:1.5px solid var(--oranje);border-radius:8px;padding:16px 18px;margin-bottom:18px">
+                        <p style="font-size:13px;font-weight:bold;color:var(--oranje);margin-bottom:8px">⭐ Bonus —
+                            Verbeter de prompt zelf</p>
+                        <p style="font-size:13px;margin-bottom:10px">Schrijf een betere prompt door meer context te
+                            geven, structuur te vragen en een rol te definiëren. Voorbeeld:</p>
+                        <div class="prompt-box" id="p02cc6" style="margin:0">
+                            Je bent klantenservice medewerker bij Vereniging Eigen Huis.<br><br>
+                            Schrijf een empathische reactie op deze review met:<br>
+                            - begrip tonen<br>
+                            - uitleg geven<br>
+                            - uitnodiging om contact op te nemen
+                            <button class="copy-btn" onclick="copyPrompt('p02cc6')">Kopieer</button>
+                        </div>
+                    </div>
+
+                    <!-- Discussie -->
+                    <div style="background:var(--lichtpaars);border-radius:6px;padding:14px 16px">
+                        <strong style="font-size:13px;color:var(--paars);display:block;margin-bottom:8px">💬 Discussie
+                            (klassikaal)</strong>
+                        <ul style="font-size:13px;padding-left:18px;line-height:1.9">
+                            <li>Wat was de kern van de klacht?</li>
+                            <li>Welke Copilot-prompt gaf het beste resultaat?</li>
+                            <li>Wat moet een medewerker altijd controleren voordat een reactie wordt geplaatst?</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div style="text-align:right; margin-top:12px; display:flex; justify-content:space-between">
+                    <button class="btn-secondary" onclick="show('m01')">← Vorige</button>
+                    <button class="btn-primary" onclick="show('m03')">Volgende module →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 03 -->
+        <section id="m03" class="section">
+            <div class="hero">
+                <div class="module-num">03</div>
+                <h1>E-mailafhandeling met Copilot</h1>
+                <p class="subtitle">Sneller lezen, beter en consistenter antwoorden</p>
+            </div>
+            <div class="content">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:43%"></div>
+                </div>
+
+                <div class="card">
+                    <h2>Kernpunten</h2>
+                    <ul>
+                        <li>Copilot vat een e-mail samen — de kernvraag inzichtelijk zonder alles te lezen</li>
+                        <li>Conceptantwoorden worden gegenereerd op basis van de inhoud van de e-mail</li>
+                        <li>De toon is aanpasbaar: formeel, informeel, korter, uitgebreider</li>
+                        <li>Herschrijven kan met een eenvoudige vervolg-prompt</li>
+                    </ul>
+                </div>
+
+                <div class="card orange">
+                    <h2>Promptvoorbeelden — E-mail afhandelen</h2>
+                    <div class="prompt-label">Prompt: e-mail beantwoorden</div>
+                    <div class="prompt-box" id="p03a">
+                        Je bent medewerker bij Vereniging Eigen Huis.<br>
+                        Schrijf een professioneel en begripvol antwoord op de onderstaande e-mail.<br>
+                        Gebruik een vriendelijke maar formele toon.<br>
+                        Sluit af met een concreet advies of volgende stap.
+                        <button class="copy-btn" onclick="copyPrompt('p03a')">Kopieer</button>
+                    </div>
+                    <div class="prompt-label">Prompt: toon aanpassen</div>
+                    <div class="prompt-box" id="p03b">
+                        Herschrijf het bovenstaande antwoord eenvoudiger.<br>
+                        Vermijd vakjargon.<br>
+                        Schrijf alsof je het uitlegt aan iemand zonder technische kennis.<br>
+                        Maximaal 150 woorden.
+                        <button class="copy-btn" onclick="copyPrompt('p03b')">Kopieer</button>
+                    </div>
+                </div>
+
+                <div class="exercise">
+                    <div class="ex-label">Praktijkopdracht</div>
+                    <div class="scenario">
+                        "Ik wil mijn woning isoleren en ik hoor dat er subsidies zijn. Kunt u mij vertellen wat ik kan
+                        aanvragen en hoe dat werkt?"
+                    </div>
+                    <ol>
+                        <li>Laat Copilot de vraag samenvatten in één zin</li>
+                        <li>Laat Copilot een informatief antwoord opstellen</li>
+                        <li>Herschrijf het antwoord voor een lid zonder technische kennis</li>
+                        <li>Vergelijk: wat is beter aan de Copilot-versie? Wat heb jij verbeterd?</li>
+                    </ol>
+                    <button class="reveal-btn" onclick="toggleAnswer(this)">Toon voorbeeldantwoord</button>
+                    <div class="answer-box">
+                        <strong>Samenvatting:</strong> Het lid vraagt naar subsidiemogelijkheden voor
+                        woningisolatie.<br><br>
+                        <strong>Voorbeeldantwoord:</strong><br>
+                        "Goed dat u dit aanpakt! Voor woningisolatie zijn er momenteel de ISDE-subsidie
+                        (investeringssubsidie duurzame energie) en lokale gemeentelijke regelingen. Via de website van
+                        RVO.nl kunt u zien voor welke maatregelen u in aanmerking komt. Wilt u hier meer over weten, dan
+                        helpen wij u graag verder of verwijzen wij u naar een VEH-energieadviseur."
+                    </div>
+                </div>
+
+                <div style="text-align:right; margin-top:12px; display:flex; justify-content:space-between">
+                    <button class="btn-secondary" onclick="show('m02')">← Vorige</button>
+                    <button class="btn-primary" onclick="show('m04')">Volgende module →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 04 -->
+        <section id="m04" class="section">
+            <div class="hero">
+                <div class="module-num">04</div>
+                <h1>Marketing en communicatie</h1>
+                <p class="subtitle">Content genereren en herschrijven met Copilot</p>
+            </div>
+            <div class="content">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:57%"></div>
+                </div>
+
+                <div class="card">
+                    <h2>Kernpunten</h2>
+                    <ul>
+                        <li>Copilot genereert onderwerpen, artikelen en berichten op basis van een thema</li>
+                        <li>Inhoudelijke controle blijft altijd noodzakelijk</li>
+                        <li>Doelgroepgerichte toon aanpassen via de prompt</li>
+                        <li>Tijdsbesparing: van leeg scherm naar bruikbaar concept in 30 seconden</li>
+                    </ul>
+                </div>
+
+                <div class="card orange">
+                    <h2>Promptvoorbeeld — Nieuwsbrief schrijven</h2>
+                    <div class="prompt-label">Prompt kopiëren</div>
+                    <div class="prompt-box" id="p04a">
+                        Schrijf een kort nieuwsbriefartikel van 150 woorden over<br>
+                        energiebesparing in woningen voor VEH-leden.<br>
+                        Neem minimaal 3 concrete tips op.<br>
+                        Sluit af met een call-to-action: verwijs naar de VEH website.<br>
+                        Gebruik een vriendelijke, informatieve toon.
+                        <button class="copy-btn" onclick="copyPrompt('p04a')">Kopieer</button>
+                    </div>
+                </div>
+
+                <div class="exercise">
+                    <div class="ex-label">Praktijkopdracht</div>
+                    <div class="scenario">
+                        Leden willen weten hoe ze energiekosten kunnen besparen in hun woning. Schrijf een korte
+                        nieuwsbrief.
+                    </div>
+                    <ol>
+                        <li>Gebruik Copilot voor de opzet en ten minste drie concrete tips</li>
+                        <li>Herschrijf één alinea in een toegankelijkere schrijfstijl</li>
+                        <li>Voeg een call-to-action toe aan het einde</li>
+                        <li>Noteer: welke prompt gaf het beste resultaat?</li>
+                    </ol>
+                    <button class="reveal-btn" onclick="toggleAnswer(this)">Toon voorbeeld nieuwsbrief</button>
+                    <div class="answer-box">
+                        <strong>Voorbeeld:</strong><br>
+                        "Bespaar dit jaar op uw energierekening! Veel woningverbetering begint bij kleine stappen:<br>
+                        • Isoleer uw spouwmuur — gemiddeld €200 besparing per jaar<br>
+                        • Vervang uw cv-ketel door een hybride warmtepomp<br>
+                        • Gebruik een slimme thermostaat voor efficiënter stoken<br>
+                        Meer weten? Op verenigingeigenhuis.nl vindt u persoonlijk advies en actuele
+                        subsidiemogelijkheden."
+                    </div>
+                </div>
+
+                <div style="text-align:right; margin-top:12px; display:flex; justify-content:space-between">
+                    <button class="btn-secondary" onclick="show('m03')">← Vorige</button>
+                    <button class="btn-primary" onclick="show('m05')">Volgende module →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 05 -->
+        <section id="m05" class="section">
+            <div class="hero">
+                <div class="module-num">05</div>
+                <h1>Marketingsegmentatie met Copilot</h1>
+                <p class="subtitle">De juiste boodschap voor de juiste doelgroep</p>
+            </div>
+            <div class="content">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:71%"></div>
+                </div>
+
+                <div class="card">
+                    <h2>Kernpunten</h2>
+                    <ul>
+                        <li>Dynamics CRM bevat gedragsdata over duizenden leden</li>
+                        <li>Copilot herkent patronen: wie opent e-mails? Wie stelde isolatievragen?</li>
+                        <li>Segmenten aanmaken via gewone taalbeschrijving — geen SQL nodig</li>
+                        <li>Controleer altijd of de criteria overeenkomen met de beschikbare data</li>
+                        <li>Betere targeting = hogere relevantie = tevreden leden</li>
+                    </ul>
+                </div>
+
+                <div class="card orange">
+                    <h2>Promptvoorbeeld — Segment definiëren</h2>
+                    <div class="prompt-label">Prompt kopiëren</div>
+                    <div class="prompt-box" id="p05a">
+                        Maak een marketingsegment van alle leden van VEH die:<br>
+                        - in de afgelopen 6 maanden minimaal één nieuwsbrief openden<br>
+                        - en minstens één keer contact opnamen over energiebesparing of isolatie.<br>
+                        Welke filtercriteria zijn hiervoor nodig in Dynamics?
+                        <button class="copy-btn" onclick="copyPrompt('p05a')">Kopieer</button>
+                    </div>
+                </div>
+
+                <div class="exercise">
+                    <div class="ex-label">Praktijkopdracht</div>
+                    <div class="scenario">
+                        Je wilt een gerichte campagne uitvoeren over energiebesparing voor geïnteresseerde leden.
+                    </div>
+                    <ol>
+                        <li>Beschrijf het segment aan Copilot in gewone taal</li>
+                        <li>Voeg minimaal 2 criteria toe (bijv. geopende e-mails + zoekvragen)</li>
+                        <li>Controleer of de filtercriteria logisch zijn</li>
+                        <li>Bedenk: welke campagnes zou jij op dit segment richten?</li>
+                    </ol>
+                    <button class="reveal-btn" onclick="toggleAnswer(this)">Toon voorbeeldcriteria</button>
+                    <div class="answer-box">
+                        <strong>Filtercriteria voor dit segment:</strong><br>
+                        1. E-mail geopend = ja, in de periode 1-1-2025 t/m heden, onderwerp bevat "energie" of
+                        "isolatie"<br>
+                        2. Case aangemaakt = ja, categorie "energiebesparing" of "isolatievragen" in 2025<br>
+                        3. (Optioneel) Websitebezoek aan pagina's over isolatie of subsidies<br><br>
+                        <strong>Campagneidee:</strong> "Slimmer isoleren met subsidie" — gepersonaliseerd advies +
+                        verwijzing naar energieadviseur
+                    </div>
+                </div>
+
+                <div style="text-align:right; margin-top:12px; display:flex; justify-content:space-between">
+                    <button class="btn-secondary" onclick="show('m04')">← Vorige</button>
+                    <button class="btn-primary" onclick="show('m06')">Volgende module →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 06 -->
+        <section id="m06" class="section">
+            <div class="hero">
+                <div class="module-num">06</div>
+                <h1>Prompttechnieken</h1>
+                <p class="subtitle">Betere AI-resultaten door slimmere vragen te stellen</p>
+            </div>
+            <div class="content">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:86%"></div>
+                </div>
+
+                <div class="card">
+                    <h2>De 4 elementen van een goede prompt</h2>
+                    <ul>
+                        <li><strong>Context:</strong> wie ben je en wat is de situatie? ("Je bent adviseur bij VEH…")
+                        </li>
+                        <li><strong>Taak:</strong> wat moet Copilot doen? Wees concreet ("Schrijf een antwoord", "Vat
+                            samen in 3 bullets")</li>
+                        <li><strong>Structuur:</strong> welk format? (bullets, alinea's, max. aantal woorden)</li>
+                        <li><strong>Toon:</strong> professioneel, begripvol, eenvoudig, formeel?</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <h2>Vergelijking: zwakke vs. sterke prompts</h2>
+                    <table class="compare-table">
+                        <thead>
+                            <tr>
+                                <th>Zwakke prompt</th>
+                                <th>Sterke prompt</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Schrijf een antwoord</td>
+                                <td>Je bent adviseur bij VEH. Schrijf een professioneel antwoord met begrip, uitleg en
+                                    vervolgstappen.</td>
+                            </tr>
+                            <tr>
+                                <td>Maak een segment</td>
+                                <td>Selecteer leden die in 2025 minimaal één e-mail openden over isolatie.</td>
+                            </tr>
+                            <tr>
+                                <td>Samenvatten</td>
+                                <td>Vat de kernklacht samen in 3 bullets. Noem ook het gewenste resultaat van het lid.
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>Schrijf een nieuwsbrief</td>
+                                <td>Schrijf een nieuwsbrief (150 woorden) over energiebesparing, actiegericht, voor
+                                    huiseigenaren.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="exercise">
+                    <div class="ex-label">Oefening — Verbeter de prompt</div>
+                    <p style="margin-bottom:14px; font-size:14px">Herschrijf de volgende zwakke prompt zodat deze de 4
+                        elementen bevat:</p>
+                    <div class="scenario">"Analyseer deze case"</div>
+                    <button class="reveal-btn" onclick="toggleAnswer(this)">Toon voorbeeldantwoord</button>
+                    <div class="answer-box">
+                        <strong>Voorbeeld sterke versie:</strong><br>
+                        "Je bent medewerker bij Vereniging Eigen Huis en behandelt een klacht van een lid. Analyseer de
+                        onderstaande case en geef aan:<br>
+                        1. Wat is de kernklacht?<br>
+                        2. Welke feiten zijn relevant?<br>
+                        3. Welke vervolgstap adviseer je?<br>
+                        Geef je analyse in maximaal 5 bullets."
+                    </div>
+                </div>
+
+                <div style="text-align:right; margin-top:12px; display:flex; justify-content:space-between">
+                    <button class="btn-secondary" onclick="show('m05')">← Vorige</button>
+                    <button class="btn-primary" onclick="show('m07')">Volgende module →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 07 -->
+        <section id="m07" class="section">
+            <div class="hero">
+                <div class="module-num">07</div>
+                <h1>Eindcase</h1>
+                <p class="subtitle">Alles samengebracht in een realistische situatie</p>
+            </div>
+            <div class="content">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:100%"></div>
+                </div>
+
+                <div class="card info">
+                    <h2>Scenario</h2>
+                    <p style="font-style:italic; font-size:15px; line-height:1.65">"Ik heb een conflict met mijn
+                        aannemer over de isolatie van mijn woning. Hij heeft het werk niet goed afgerond en reageert
+                        niet meer op mijn berichten."</p>
+                </div>
+
+                <div class="card orange">
+                    <h2>Stap-voor-stap aanpak</h2>
+                    <ol style="padding-left:20px; font-size:14px; line-height:2">
+                        <li><strong>Samenvatten:</strong> Laat Copilot de klacht samenvatten in 3 bullets</li>
+                        <li><strong>Analyseren:</strong> Vraag Copilot het probleem te analyseren en juridische aspecten
+                            te benoemen</li>
+                        <li><strong>Antwoord schrijven:</strong> Genereer een professionele antwoordmail met begrip en
+                            vervolgstappen</li>
+                        <li><strong>Toon aanpassen:</strong> Herschrijf het antwoord toegankelijker voor een lid zonder
+                            juridische kennis</li>
+                    </ol>
+                </div>
+
+                <div class="exercise">
+                    <div class="ex-label">Reflectievragen na de eindcase</div>
+                    <ol>
+                        <li>Welke prompt gaf het meest bruikbare resultaat in stap 1?</li>
+                        <li>Moest je Copilot bijsturen? Zo ja, hoe?</li>
+                        <li>Wat had je zonder Copilot anders of langer gedaan?</li>
+                        <li>Op welke punten was het antwoord van Copilot onvolledig of onjuist?</li>
+                    </ol>
+                    <button class="reveal-btn" onclick="toggleAnswer(this)">Toon modelantwoorden</button>
+                    <div class="answer-box">
+                        <strong>Stap 1 — Samenvatting:</strong><br>
+                        • Probleem: aannemer heeft isolatiewerk niet goed afgemaakt<br>
+                        • Ondernomen: lid heeft contact geprobeerd, geen reactie<br>
+                        • Gewenst: herstel of compensatie<br><br>
+                        <strong>Stap 3 — Voorbeeldantwoord:</strong><br>
+                        "Geachte heer/mevrouw [naam], wij begrijpen uw frustratie en nemen uw klacht serieus. Een
+                        aannemer is verplicht om gebreken te herstellen op basis van de overeenkomst. Wij adviseren u de
+                        aannemer schriftelijk (aangetekend) in gebreke te stellen met een hersteltermijn van 14 dagen.
+                        Heeft u behoefte aan een briefsjabloon of meer informatie over uw rechten? Dan helpen wij u
+                        graag verder."
+                    </div>
+                </div>
+
+                <div class="card green">
+                    <h2>Belangrijke aandachtspunten</h2>
+                    <ul>
+                        <li>Copilot is een hulpmiddel — jij blijft verantwoordelijk voor het eindresultaat</li>
+                        <li>Controleer altijd de inhoud vóór je iets verstuurt</li>
+                        <li>AI begrijpt emotie en context niet altijd — empathische onderdelen zelf schrijven</li>
+                        <li>Gebruik Copilot voor routinetaken; complexe situaties vragen menselijk inzicht</li>
+                        <li>Wees zorgvuldig met privacygevoelige informatie in prompts</li>
+                    </ul>
+                </div>
+
+                <div style="text-align:right; margin-top:12px; display:flex; justify-content:space-between">
+                    <button class="btn-secondary" onclick="show('m06')">← Vorige</button>
+                    <button class="btn-primary" onclick="show('agent')">Bonus: Bouw een agent →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- AGENT BONUS -->
+        <section id="agent" class="section">
+            <div class="hero" style="background:var(--navy)">
+                <div class="module-num" style="font-size:50px">🤖</div>
+                <h1>Bouw een eigen Copilot-agent</h1>
+                <p class="subtitle">Bonus-oefening — Maak een persoonlijke AI-assistent in Microsoft 365 Copilot</p>
+            </div>
+            <div class="content">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width:100%"></div>
+                </div>
+
+                <div class="card info">
+                    <h2>Wat is een Copilot-agent?</h2>
+                    <p style="font-size:14px;line-height:1.7">Een <strong>Copilot-agent</strong> is een vooraf
+                        geconfigureerde AI-assistent met eigen instructies, kennisvragen en een vaste rol. Je bouwt hem
+                        eenmalig en kunt hem daarna steeds opnieuw gebruiken — als een slimme collega die jouw werk
+                        kent.</p>
+                    <ul style="margin-top:10px">
+                        <li>Eigen <strong>naam en instructies</strong> — de agent weet meteen wie jij bent en wat jouw
+                            rol is</li>
+                        <li>Eigen <strong>kennisbron</strong> — koppel documenten, SharePoint-mappen of beleid</li>
+                        <li>Direct beschikbaar in <strong>Microsoft 365 Copilot</strong>, Teams en Outlook</li>
+                    </ul>
+                </div>
+
+                <div class="card orange">
+                    <h2>Doel van de oefening</h2>
+                    <ul>
+                        <li>Begrijpen hoe je een agent aanmaakt in Copilot voor Microsoft 365</li>
+                        <li>Een agent configureren die past bij jouw dagelijkse werk als VEH-medewerker</li>
+                        <li>De agent testen met echte werkvragen</li>
+                        <li>Leren hoe je instructies schrijft die AI-gedrag sturen</li>
+                    </ul>
+                </div>
+
+                <!-- Stap 1 -->
+                <div class="card" style="border-left-color:var(--oranje)">
+                    <h2 style="color:var(--oranje)">Stap 1 — Open de Copilot-agentbouwer</h2>
+                    <ol style="font-size:14px;line-height:1.9;padding-left:20px">
+                        <li>Ga naar <strong>Microsoft 365 Copilot</strong> via <a href="https://microsoft365.com"
+                                target="_blank" rel="noopener" style="color:var(--paars)">microsoft365.com</a> of open
+                            Copilot in Teams.</li>
+                        <li>Klik rechtsonder op het icoontje <strong>"Copilot-agents"</strong> of kies in het zijpaneel
+                            voor <strong>"Agents"</strong>.</li>
+                        <li>Klik op <strong>"Nieuwe agent maken"</strong> (of "Create agent").</li>
+                        <li>Je opent nu de <strong>agent-configurator</strong> — hier stel je naam, instructies en
+                            gedrag in.</li>
+                    </ol>
+                    <p style="font-size:13px;margin-top:10px;color:var(--grijs)">Tip: Je kunt ook starten via <a
+                            href="https://copilotstudio.microsoft.com" target="_blank" rel="noopener"
+                            style="color:var(--paars)">Copilot Studio</a> voor meer mogelijkheden.</p>
+                </div>
+
+                <!-- Stap 2 -->
+                <div class="card">
+                    <h2>Stap 2 — Geef je agent een naam en rol</h2>
+                    <p style="font-size:14px;margin-bottom:12px">Kies een herkenbare naam en plak onderstaande tekst in
+                        het instructieveld:</p>
+                    <div class="prompt-label">Agent-instructie — kopiëren en plakken</div>
+                    <div class="prompt-box" id="pag1">
+                        Jij bent de VEH Klantadviseur-assistent van Vereniging Eigen Huis.<br><br>
+                        Je helpt medewerkers om:<br>
+                        - klachten van leden snel samen te vatten<br>
+                        - professionele reacties te schrijven<br>
+                        - e-mails te beantwoorden in een vriendelijke en formele toon<br>
+                        - antwoorden te geven die aansluiten bij het VEH-beleid<br><br>
+                        Gebruik altijd een begripvolle, professionele toon.<br>
+                        Geef nooit juridisch advies, maar verwijs door naar een VEH-adviseur.<br>
+                        Houd reacties beknopt: maximaal 150 woorden tenzij anders gevraagd.
+                        <button class="copy-btn" onclick="copyPrompt('pag1')">Kopieer</button>
+                    </div>
+                </div>
+
+                <!-- Stap 3 -->
+                <div class="card">
+                    <h2>Stap 3 — Voeg een kennisbron toe <span
+                            style="font-weight:normal;font-size:14px;color:var(--grijs)">(optioneel)</span></h2>
+                    <p style="font-size:14px;line-height:1.7">Koppel documenten of SharePoint-mappen zodat de agent
+                        antwoorden baseert op VEH-beleid of veelgestelde vragen:</p>
+                    <ul style="font-size:14px;margin-top:8px">
+                        <li>VEH Klachtenreglement of algemene voorwaarden</li>
+                        <li>FAQ voor leden (Word of PDF)</li>
+                        <li>Standaardantwoorden voor veelgestelde vragen</li>
+                        <li>SharePoint-map met e-mailsjablonen</li>
+                    </ul>
+                    <p style="font-size:13px;margin-top:10px;color:var(--grijs)">Geen toegang tot interne documenten?
+                        Sla deze stap dan over en test de agent alleen op basis van de instructies.</p>
+                </div>
+
+                <!-- Stap 4 -->
+                <div class="card">
+                    <h2>Stap 4 — Stel startvragen in</h2>
+                    <p style="font-size:14px;margin-bottom:12px">Voeg kant-en-klare snelknoppen toe die de agent direct
+                        activeren. Voorbeelden:</p>
+                    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:8px">
+                        <span
+                            style="background:var(--lichtpaars);color:var(--paars);border:1.5px solid var(--border);border-radius:20px;padding:6px 14px;font-size:13px">Samenvatten
+                            van een klacht</span>
+                        <span
+                            style="background:var(--lichtpaars);color:var(--paars);border:1.5px solid var(--border);border-radius:20px;padding:6px 14px;font-size:13px">Schrijf
+                            een antwoord</span>
+                        <span
+                            style="background:var(--lichtpaars);color:var(--paars);border:1.5px solid var(--border);border-radius:20px;padding:6px 14px;font-size:13px">Maak
+                            het vriendelijker</span>
+                        <span
+                            style="background:var(--lichtpaars);color:var(--paars);border:1.5px solid var(--border);border-radius:20px;padding:6px 14px;font-size:13px">Controleer
+                            de toon</span>
+                        <span
+                            style="background:var(--lichtpaars);color:var(--paars);border:1.5px solid var(--border);border-radius:20px;padding:6px 14px;font-size:13px">CRM-samenvatting
+                            genereren</span>
+                    </div>
+                </div>
+
+                <!-- Stap 5 -->
+                <div class="card">
+                    <h2>Stap 5 — Test je agent</h2>
+                    <p style="font-size:14px;margin-bottom:14px">Stel onderstaande testvragen één voor één aan je agent
+                        en beoordeel de kwaliteit van de reacties:</p>
+                    <div class="prompt-label">Testvraag 1 — Samenvatten</div>
+                    <div class="prompt-box" id="pag2">
+                        Een lid klaagt dat zijn dak lekt na een verbouwing en de aannemer niet reageert.<br>
+                        Vat deze klacht samen in 3 bullets voor het CRM-dossier.
+                        <button class="copy-btn" onclick="copyPrompt('pag2')">Kopieer</button>
+                    </div>
+                    <div class="prompt-label">Testvraag 2 — Reactie schrijven</div>
+                    <div class="prompt-box" id="pag3">
+                        Een lid stuurt een boze e-mail omdat zijn subsidieaanvraag al 6 weken in behandeling is.<br>
+                        Schrijf een begripvol antwoord en nodig hem uit om ons te bellen.
+                        <button class="copy-btn" onclick="copyPrompt('pag3')">Kopieer</button>
+                    </div>
+                    <div class="prompt-label">Testvraag 3 — Toon aanpassen</div>
+                    <div class="prompt-box" id="pag4">
+                        Herschrijf onderstaand antwoord in een meer empathische en persoonlijke toon.<br>
+                        Maximaal 100 woorden.
+                        <button class="copy-btn" onclick="copyPrompt('pag4')">Kopieer</button>
+                    </div>
+                </div>
+
+                <!-- Stap 6 -->
+                <div class="card" style="border-left-color:var(--navy);background:var(--lichtpaars)">
+                    <h2 style="color:var(--navy)">Stap 6 — Verfijn je instructies</h2>
+                    <p style="font-size:14px;margin-bottom:12px">Na het testen: pas de instructies aan op basis van wat
+                        je ervaart:</p>
+                    <ul style="font-size:14px">
+                        <li>Toon niet goed? Voeg toe: <em>"Altijd empathisch en persoonlijk"</em></li>
+                        <li>Antwoord te lang? Voeg een woordlimiet toe in de instructie</li>
+                        <li>Mist VEH-context? Breid de rol-omschrijving uit</li>
+                        <li>Wil je vaste afsluiting? Voeg een slotformule toe</li>
+                    </ul>
+                    <p style="font-size:13px;margin-top:10px;color:var(--grijs)">Instructies verfijnen is iteratief —
+                        net als prompts schrijven. Elke aanpassing maakt de agent beter.</p>
+                </div>
+
+                <!-- Voorbeeld eindresultaat -->
+                <div class="exercise">
+                    <div class="ex-label">Voorbeeld — Volledige agent-instructie</div>
+                    <p style="font-size:13px;margin-bottom:10px">Een compleet voorbeeld als startpunt:</p>
+                    <div class="prompt-box" id="pag5">
+                        # VEH Klantadviseur-assistent<br><br>
+                        ## Rol<br>
+                        Je bent een AI-assistent voor medewerkers van Vereniging Eigen Huis (VEH). VEH is een
+                        ledenorganisatie die huiseigenaren helpt met advies over wonen, verbouwen en
+                        verduurzamen.<br><br>
+                        ## Wat je doet<br>
+                        - Klachten samenvatten voor het CRM-dossier (max. 3 bullets)<br>
+                        - Reacties schrijven op e-mails en reviews (max. 150 woorden)<br>
+                        - Teksten herschrijven met de gewenste toon<br>
+                        - Vragen beantwoorden over standaard VEH-procedures<br><br>
+                        ## Gedragsregels<br>
+                        - Altijd professioneel, begripvol en vriendelijk<br>
+                        - Nooit juridisch advies geven — verwijs door naar een VEH-adviseur<br>
+                        - Antwoorden baseren op feiten, geen aannames<br>
+                        - Bij twijfel altijd vragen om meer context<br><br>
+                        ## Slotformule bij reacties<br>
+                        Sluit reacties altijd af met:<br>
+                        "Heeft u nog vragen? Neem gerust contact op via info@eigenhuis.nl of bel ons op 033 - 450 77
+                        50."
+                        <button class="copy-btn" onclick="copyPrompt('pag5')">Kopieer</button>
+                    </div>
+                </div>
+
+                <!-- Discussie -->
+                <div style="background:var(--lichtpaars);border-radius:6px;padding:14px 16px;margin-top:8px">
+                    <strong style="font-size:13px;color:var(--paars);display:block;margin-bottom:8px">💬 Bespreek
+                        daarna</strong>
+                    <ul style="font-size:13px;padding-left:18px;line-height:1.9">
+                        <li>Wat doet je agent nu wat je voordien handmatig deed?</li>
+                        <li>Welke instructies maakten de meeste impact op de kwaliteit van de output?</li>
+                        <li>Welke risico's zie je bij het gebruik van een agent voor klantcommunicatie?</li>
+                        <li>Wat zou je nog toevoegen om de agent nog beter te maken?</li>
+                    </ul>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;margin-top:20px">
+                    <button class="btn-secondary" onclick="show('m07')">← Terug naar eindcase</button>
+                    <button class="btn-primary" onclick="show('quiz')">Ga naar de Kennisquiz →</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- QUIZ -->
+        <section id="quiz" class="section">
+            <div class="quiz-header">
+                <h1>Kennisquiz</h1>
+                <p>Test je kennis — 10 vragen over alle modules</p>
+            </div>
+            <div class="content" id="quiz-content">
+                <!-- Vragen worden via JS ingevoegd -->
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // ─── Power Automate endpoint ──────────────────────────────
+        // Vervang de URL hieronder met jouw eigen Power Automate HTTP-trigger URL
+        const POWER_AUTOMATE_URL = "JOUW_POWER_AUTOMATE_URL_HIER";
+
+        // ─── Startformulier ───────────────────────────────────────
+        async function submitStartForm(e)
+        {
+            e.preventDefault();
+            const naam = document.getElementById('sf-naam').value.trim();
+            const functie = document.getElementById('sf-functie').value;
+            const email = document.getElementById('sf-email').value.trim();
+            const leerwens = document.getElementById('sf-leerwens').value.trim();
+            const msg = document.getElementById('sf-msg');
+            const btn = document.getElementById('start-submit');
+
+            if (!naam || !functie || !email)
+            {
+                msg.textContent = 'Vul alle verplichte velden in (*)';
+                msg.className = 'sf-msg error';
+                return;
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+            {
+                msg.textContent = 'Vul een geldig e-mailadres in.';
+                msg.className = 'sf-msg error';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = 'Bezig met versturen…';
+            msg.textContent = '';
+            msg.className = 'sf-msg';
+
+            const payload = {
+                naam,
+                functie,
+                email,
+                leerwens,
+                datum: new Date().toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit', year: 'numeric' }),
+                tijdstip: new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })
+            };
+
+            try
+            {
+                if (POWER_AUTOMATE_URL !== "JOUW_POWER_AUTOMATE_URL_HIER")
+                {
+                    await fetch(POWER_AUTOMATE_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                }
+            } catch (_)
+            {
+                // Stille fout — training niet blokkeren bij verbindingsproblemen
+            }
+
+            // Overlay verbergen en training starten
+            const overlay = document.getElementById('start-overlay');
+            overlay.classList.add('hidden');
+            setTimeout(() => overlay.style.display = 'none', 520);
+        }
+
+        // ─── Navigatie ────────────────────────────────────────────
+        function show(id)
+        {
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('#sidebar nav a').forEach(a => a.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            const navLink = document.getElementById('nav-' + id);
+            if (navLink) navLink.classList.add('active');
+            document.getElementById('main').scrollTo(0, 0);
+            return false;
+        }
+
+        // ─── Antwoord toggle ─────────────────────────────────────
+        function toggleAnswer(btn)
+        {
+            const box = btn.nextElementSibling;
+            const isVisible = box.classList.contains('visible');
+            box.classList.toggle('visible', !isVisible);
+            btn.textContent = isVisible ? 'Toon antwoord' : 'Verberg antwoord';
+        }
+
+        // ─── Prompt kopiëren ─────────────────────────────────────
+        function copyPrompt(id)
+        {
+            const el = document.getElementById(id);
+            const text = el.innerText.replace('Kopieer', '').trim();
+            navigator.clipboard.writeText(text).then(() =>
+            {
+                const btn = el.querySelector('.copy-btn');
+                btn.textContent = 'Gekopieerd!';
+                setTimeout(() => btn.textContent = 'Kopieer', 2000);
+            });
+        }
+
+        // ─── Quiz ─────────────────────────────────────────────────
+        const questions = [
+            {
+                q: "Wat is het belangrijkste voordeel van Dynamics 365 Copilot ten opzichte van ChatGPT?",
+                opts: [
+                    "Dynamics Copilot is gratis te gebruiken",
+                    "Dynamics Copilot werkt direct met klant- en casedata uit het CRM",
+                    "Dynamics Copilot kan afbeeldingen genereren",
+                    "Dynamics Copilot vereist geen internetverbinding"
+                ],
+                ans: 1,
+                fb: "Juist! Dynamics Copilot is geïntegreerd met je CRM en gebruikt dus bestaande klant- en casedata. ChatGPT heeft geen toegang tot jouw organisatiedata."
+            },
+            {
+                q: "Een medewerker wil een klachtcase samenvatten. Welke prompt is het meest effectief?",
+                opts: [
+                    "Samenvatten",
+                    "Vat deze case samen",
+                    "Vat de kernklacht samen in 3 bullets met het probleem, ondernomen acties en gewenste oplossing",
+                    "Maak een korte tekst over de klacht"
+                ],
+                ans: 2,
+                fb: "Correct! Een effectieve prompt bevat context, een duidelijke taak én gewenste structuur. Optie C bevat alle drie."
+            },
+            {
+                q: "Wat is de juiste volgorde bij het verwerken van een e-mail met Copilot?",
+                opts: [
+                    "Antwoord sturen → Copilot samenvatting bekijken → controleren",
+                    "Copilot antwoord genereren → controleren → aanpassen → versturen",
+                    "Copilot samenvatting → Copilot antwoord → direct versturen zonder controle",
+                    "Antwoord schrijven zonder Copilot, Copilot alleen voor spellingscontrole"
+                ],
+                ans: 1,
+                fb: "Precies! Je genereert een concept met Copilot, controleert dit altijd zelf, past aan waar nodig en pas dan verstuur je het."
+            },
+            {
+                q: "Welke 4 elementen maakt een goede prompt sterk?",
+                opts: [
+                    "Lengte, opmaak, kleur en stijl",
+                    "Context, duidelijke taak, gewenste structuur en toon",
+                    "Snelheid, nauwkeurigheid, creativiteit en originaliteit",
+                    "Datum, naam, afdeling en onderwerp"
+                ],
+                ans: 1,
+                fb: "Goed! Context + taak + structuur + toon zijn de vier bouwstenen van een effectieve prompt."
+            },
+            {
+                q: "Je wilt een marketingsegment maken van leden die interesse hebben in energiebesparing. Wat is de beste aanpak?",
+                opts: [
+                    "Handmatig alle contacten bekijken",
+                    "Copilot vragen: 'Maak een segment'",
+                    "Copilot beschrijven welk gedrag de leden moeten hebben (bijv. geopende e-mails over isolatie) en de criteria laten genereren",
+                    "Een Excel-export maken en zelf filteren"
+                ],
+                ans: 2,
+                fb: "Juist! Door Copilot concreet te beschrijven welk gedrag het segment moet hebben, kan het de juiste filtercriteria in Dynamics genereren."
+            },
+            {
+                q: "Wanneer moet je Copilot-output ALTIJD controleren voordat je deze verstuurt?",
+                opts: [
+                    "Alleen bij formele e-mails",
+                    "Alleen bij klachten",
+                    "Altijd — bij elke vorm van output",
+                    "Nooit, Copilot maakt geen fouten"
+                ],
+                ans: 2,
+                fb: "Altijd! Copilot kan fouten maken, context missen of een onjuiste toon gebruiken. Jij blijft verantwoordelijk voor wat je verstuurt."
+            },
+            {
+                q: "Wat is een 'zwakke' prompt?",
+                opts: [
+                    "Een prompt van minder dan 5 woorden",
+                    "Een prompt zonder context, duidelijke taak of gewenste structuur",
+                    "Een prompt in het Engels in plaats van het Nederlands",
+                    "Een prompt die te lang is"
+                ],
+                ans: 1,
+                fb: "Correct! Een zwakke prompt mist context, taakomschrijving of structuur — hierdoor geeft Copilot vage of onbruikbare resultaten."
+            },
+            {
+                q: "Hoe pas je de toon van een door Copilot geschreven antwoord aan?",
+                opts: [
+                    "Dat is niet mogelijk — Copilot heeft altijd dezelfde toon",
+                    "Alleen door de tekst handmatig te herschrijven",
+                    "Door een vervolg-prompt te geven met de gewenste toon, bijv. 'Herschrijf dit eenvoudiger'",
+                    "Door een andere taal te kiezen"
+                ],
+                ans: 2,
+                fb: "Juist! Je kunt altijd een vervolg-prompt geven om de toon, lengte of stijl aan te passen. Bijv: 'Maak dit korter en toegankelijker.'"
+            },
+            {
+                q: "Wat is de primaire taak van de medewerker bij het gebruik van Copilot?",
+                opts: [
+                    "Alle output van Copilot direct overnemen voor efficiëntie",
+                    "De output altijd controleren, aanpassen waar nodig en verantwoord communiceren",
+                    "Copilot uitschakelen bij gevoelige cases",
+                    "Alleen de samenvatting gebruiken, nooit de antwoorden"
+                ],
+                ans: 1,
+                fb: "Precies! Copilot is een hulpmiddel. De medewerker controleert de output, past aan en draagt de eindverantwoordelijkheid."
+            },
+            {
+                q: "Welke van de volgende taken is het MINST geschikt voor Copilot?",
+                opts: [
+                    "Een standaard e-mail beantwoorden",
+                    "Een klachtcase samenvatten",
+                    "Een emotioneel en complex juridisch oordeel vellen",
+                    "Drie nieuwsbriefonderwerpen genereren"
+                ],
+                ans: 2,
+                fb: "Goed gezien! Bij complexe juridische of emotionele situaties is menselijk inzicht onmisbaar. Copilot kan feiten samenvatten, maar een oordeel vellen is aan jou."
+            }
+        ];
+
+        function buildQuiz()
+        {
+            const container = document.getElementById('quiz-content');
+            let html = '';
+
+            questions.forEach((q, qi) =>
+            {
+                html += `
+      <div class="quiz-question" id="qq${qi}">
+        <div class="q-num">Vraag ${qi + 1} van ${questions.length}</div>
+        <div class="q-text">${q.q}</div>
+        <div class="quiz-options">
+          ${q.opts.map((opt, oi) => `
+            <label id="lbl${qi}_${oi}">
+              <input type="radio" name="q${qi}" value="${oi}" onchange="checkAnswer(${qi}, ${oi})">
+              ${opt}
+            </label>
+          `).join('')}
+        </div>
+        <div class="quiz-feedback" id="fb${qi}"></div>
+      </div>
+    `;
+            });
+
+            html += `
+    <div class="quiz-submit-row">
+      <button class="btn-secondary" onclick="resetQuiz()">Opnieuw proberen</button>
+      <button class="btn-primary" onclick="showResult()">Bekijk resultaat</button>
+    </div>
+    <div class="quiz-result" id="quiz-result">
+      <div class="score-label">Jouw score</div>
+      <div class="score" id="score-display"></div>
+      <div class="score-label" id="score-max">van ${questions.length}</div>
+      <div class="feedback-text" id="score-feedback"></div>
+    </div>
+  `;
+
+            container.innerHTML = html;
+        }
+
+        const answers = new Array(questions.length).fill(null);
+
+        function checkAnswer(qi, oi)
+        {
+            answers[qi] = oi;
+            const isCorrect = oi === questions[qi].ans;
+            const fb = document.getElementById('fb' + qi);
+            fb.className = 'quiz-feedback show ' + (isCorrect ? 'ok' : 'no');
+            fb.textContent = (isCorrect ? '✓ Correct! ' : '✗ Niet juist. ') + questions[qi].fb;
+
+            // Style labels
+            questions[qi].opts.forEach((_, optIdx) =>
+            {
+                const lbl = document.getElementById('lbl' + qi + '_' + optIdx);
+                lbl.classList.remove('correct', 'incorrect');
+                if (optIdx === questions[qi].ans) lbl.classList.add('correct');
+                else if (optIdx === oi && !isCorrect) lbl.classList.add('incorrect');
+            });
+
+            // Disable all radios for this question
+            document.querySelectorAll(`input[name="q${qi}"]`).forEach(r => r.disabled = true);
+        }
+
+        function showResult()
+        {
+            const score = answers.filter((a, i) => a === questions[i].ans).length;
+            const resultEl = document.getElementById('quiz-result');
+            document.getElementById('score-display').textContent = score;
+            let feedback = '';
+            if (score >= 9) feedback = 'Uitstekend! Je beheerst de stof zeer goed.';
+            else if (score >= 7) feedback = 'Goed gedaan! Je hebt de training goed verwerkt.';
+            else if (score >= 5) feedback = 'Redelijk. Bekijk de modules nog eens voor de vragen die je miste.';
+            else feedback = 'Er is nog wat herhaling nodig. Loop de modules nog eens door.';
+            document.getElementById('score-feedback').textContent = feedback;
+            resultEl.classList.add('show');
+            resultEl.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function resetQuiz()
+        {
+            answers.fill(null);
+            buildQuiz();
+            document.getElementById('quiz-content').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Init quiz when tab becomes active (but only once)
+        let quizBuilt = false;
+        const origShow = show;
+        window.show = function (id)
+        {
+            if (id === 'quiz' && !quizBuilt) { buildQuiz(); quizBuilt = true; }
+            return origShow(id);
+        };
+    </script>
+</body>
+
+</html>
