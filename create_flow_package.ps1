@@ -13,14 +13,14 @@ $ErrorActionPreference = "Stop"
 $enc = [System.Text.UTF8Encoding]::new($false)   # UTF-8 zonder BOM
 
 # ── Identifiers ───────────────────────────────────────────────────────────────
-$flowGuidDashed  = "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"   # voor XML WorkflowId
-$flowGuidNoDash  = "A1B2C3D4E5F67890ABCDEF1234567890"        # voor bestandsnaam
-$flowSchemaName  = "new_VEHCopilotTrainingAanmelding"
-$connRefLogical  = "new_sharedoffice365_vehtraining"
-$workspace       = "C:\Users\Remse\Desktop\Opdrachtgevers\E - Eigen huis"
-$outZip          = "$workspace\VEH_Copilot_Training_Flow.zip"
-$tempDir         = Join-Path $env:TEMP "VEH_SolPkg_$(Get-Random)"
-$wfDir           = "$tempDir\Workflows"
+$flowGuidDashed = "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"   # voor XML WorkflowId
+$flowGuidNoDash = "A1B2C3D4E5F67890ABCDEF1234567890"        # voor bestandsnaam
+$flowSchemaName = "new_VEHCopilotTrainingAanmelding"
+$connRefLogical = "new_sharedoffice365_vehtraining"
+$workspace = "C:\Users\Remse\Desktop\Opdrachtgevers\E - Eigen huis"
+$outZip = "$workspace\VEH_Copilot_Training_Flow.zip"
+$tempDir = Join-Path $env:TEMP "VEH_SolPkg_$(Get-Random)"
+$wfDir = "$tempDir\Workflows"
 
 # ── Tijdelijke map ────────────────────────────────────────────────────────────
 if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
