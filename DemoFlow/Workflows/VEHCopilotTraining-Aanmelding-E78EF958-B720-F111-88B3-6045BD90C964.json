@@ -1,0 +1,92 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_office365": {
+        "api": {
+          "name": "shared_office365"
+        },
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedoffice365_34525"
+        },
+        "runtimeSource": "embedded"
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "actions": {
+        "Compose": {
+          "type": "Compose",
+          "inputs": "@triggerBody()",
+          "runAfter": {}
+        },
+        "Send_an_email_(V2)": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "emailMessage/To": "remsey@skills4-it.nl",
+              "emailMessage/Subject": "Aanmelding Eigenhuis",
+              "emailMessage/Body": "<table style=\"font-family:Calibri,Arial,sans-serif;font-size:14px;border-collapse:collapse;width:100%;max-width:600px\">\n\n  <!-- Header -->\n  <tbody><tr>\n    <td style=\"background:#3B2785;padding:20px 24px\">\n      <span style=\"color:#F07800;font-size:20px;font-weight:bold\">🎓</span>\n      <span style=\"color:#ffffff;font-size:18px;font-weight:bold;margin-left:8px\">Nieuwe aanmelding — Copilot Training VEH</span>\n    </td>\n  </tr>\n\n  <!-- Naam -->\n  <tr>\n    <td style=\"padding:12px 24px;width:130px;font-weight:bold;color:#3B2785;border-bottom:1px solid #E5E7EB\">Naam</td>\n    <td style=\"padding:12px 24px;border-bottom:1px solid #E5E7EB\">@{triggerBody()?['naam']}</td>\n  </tr>\n\n  <!-- Functie -->\n  <tr style=\"background:#F9FAFB\">\n    <td style=\"padding:12px 24px;font-weight:bold;color:#3B2785;border-bottom:1px solid #E5E7EB\">Functie</td>\n    <td style=\"padding:12px 24px;border-bottom:1px solid #E5E7EB\">@{triggerBody()?['functie']}</td>\n  </tr>\n\n  <!-- E-mail -->\n  <tr>\n    <td style=\"padding:12px 24px;font-weight:bold;color:#3B2785;border-bottom:1px solid #E5E7EB\">E-mailadres</td>\n    <td style=\"padding:12px 24px;border-bottom:1px solid #E5E7EB\">\n      <a href=\"mailto:@{triggerBody()?['email']}\" style=\"color:#3B2785\">@{triggerBody()?['email']}</a>\n    </td>\n  </tr>\n\n  <!-- Leerwens -->\n  <tr style=\"background:#F9FAFB\">\n    <td style=\"padding:12px 24px;font-weight:bold;color:#3B2785;border-bottom:1px solid #E5E7EB;vertical-align:top\">Leerwens</td>\n    <td style=\"padding:12px 24px;border-bottom:1px solid #E5E7EB\">@{triggerBody()?['leerwens']}</td>\n  </tr>\n\n  <!-- Datum & tijd -->\n  <tr>\n    <td style=\"padding:12px 24px;font-weight:bold;color:#3B2785\">Datum &amp; tijd</td>\n    <td style=\"padding:12px 24px\">@{triggerBody()?['datum']} om @{triggerBody()?['tijdstip']}</td>\n  </tr>\n\n  <!-- Footer -->\n  <tr>\n    <td style=\"background:#FFF3E0;padding:12px 24px;font-size:11px;color:#9CA3AF;border-top:3px solid #F07800\">\n      Verstuurd vanuit de Online Leeromgeving • Copilot in Dynamics 365 CE • Vereniging Eigen Huis\n    </td>\n  </tr>\n\n</tbody></table>",
+              "emailMessage/Importance": "Normal"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+              "operationId": "SendEmailV2",
+              "connectionName": "shared_office365"
+            }
+          },
+          "runAfter": {
+            "Compose": [
+              "SUCCEEDED"
+            ]
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "type": "Request",
+          "kind": "Http",
+          "inputs": {
+            "triggerAuthenticationType": "All",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "naam": {
+                  "type": "string"
+                },
+                "functie": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "leerwens": {
+                  "type": "string"
+                },
+                "datum": {
+                  "type": "string"
+                },
+                "tijdstip": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "outputs": {}
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

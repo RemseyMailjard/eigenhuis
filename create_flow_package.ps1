@@ -1,8 +1,5 @@
 # ─────────────────────────────────────────────────────────────────────────────
-# create_flow_package.ps1
-# Genereert een importeerbaar Power Automate SOLUTION-pakket (.zip)
-# Vereiste structuur: [Content_Types].xml + solution.xml + customizations.xml
-# Gebruik: .\create_flow_package.ps1 [-Email "jouw.naam@eigenhuis.nl"]
+# create_flow_package.ps1  —  gebaseerd op een echte export als referentie
 # ─────────────────────────────────────────────────────────────────────────────
 param(
   [string]$Email = "remsey@skills4-it.nl"
@@ -10,24 +7,24 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
-$enc = [System.Text.UTF8Encoding]::new($false)   # UTF-8 zonder BOM
+$enc = [System.Text.UTF8Encoding]::new($false)
 
-# ── Identifiers ───────────────────────────────────────────────────────────────
-$flowGuidDashed = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"   # lowercase: Dataverse vergelijkt case-sensitive
-$flowGuidNoDash = "a1b2c3d4e5f67890abcdef1234567890"        # voor bestandsnaam
-$flowSchemaName = "new_VEHCopilotTrainingAanmelding"
-$connRefLogical = "new_sharedoffice365_vehtraining"
+# ── Identifiers (zelfde patroon als demo: lowercase GUID in XML, UPPERCASE in bestandsnaam) ──
+$flowGuidLower = "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+$flowGuidUpper = "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+$connRefLogical = "new_sharedoffice365_vehtr"
+$flowJsonName = "VEHCopilotTraining-Aanmelding-$flowGuidUpper.json"
+
 $workspace = "C:\Users\Remse\Desktop\Opdrachtgevers\E - Eigen huis"
 $outZip = "$workspace\VEH_Copilot_Training_Flow.zip"
 $tempDir = Join-Path $env:TEMP "VEH_SolPkg_$(Get-Random)"
 $wfDir = "$tempDir\Workflows"
 
-# ── Tijdelijke map ────────────────────────────────────────────────────────────
 if (Test-Path $tempDir) { Remove-Item $tempDir -Recurse -Force }
 New-Item -ItemType Directory -Force -Path $wfDir | Out-Null
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# 1. [Content_Types].xml
+# [Content_Types].xml
 # ═══════════════════════════════════════════════════════════════════════════════
 $contentTypes = @'
 <?xml version="1.0" encoding="utf-8"?>
@@ -39,7 +36,7 @@ $contentTypes = @'
 '@
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# 2. solution.xml
+# solution.xml  —  alleen type 29 in RootComponents (geen connectionreference)
 # ═══════════════════════════════════════════════════════════════════════════════
 $solutionXml = @"
 <?xml version="1.0" encoding="utf-8"?>
@@ -49,9 +46,7 @@ $solutionXml = @"
     <LocalizedNames>
       <LocalizedName description="VEH Copilot Training - Aanmelding" languagecode="1033" />
     </LocalizedNames>
-    <Descriptions>
-      <Description description="Ontvangt aanmeldingen van de online leeromgeving en stuurt een e-mailnotificatie naar de trainer." languagecode="1033" />
-    </Descriptions>
+    <Descriptions />
     <Version>1.0.0.0</Version>
     <Managed>0</Managed>
     <Publisher>
@@ -60,31 +55,43 @@ $solutionXml = @"
         <LocalizedName description="Default Publisher VEH" languagecode="1033" />
       </LocalizedNames>
       <Descriptions />
-      <EMailAddress xsi:nil="true" />
-      <SupportingWebsiteUrl xsi:nil="true" />
+      <EMailAddress xsi:nil="true"></EMailAddress>
+      <SupportingWebsiteUrl xsi:nil="true"></SupportingWebsiteUrl>
       <CustomizationPrefix>new</CustomizationPrefix>
       <CustomizationOptionValuePrefix>10000</CustomizationOptionValuePrefix>
       <Addresses>
         <Address>
           <AddressNumber>1</AddressNumber>
           <AddressTypeCode>1</AddressTypeCode>
-          <City xsi:nil="true" /><County xsi:nil="true" /><Country xsi:nil="true" />
-          <Fax xsi:nil="true" /><FreightTermsCode xsi:nil="true" />
-          <ImportSequenceNumber xsi:nil="true" /><Latitude xsi:nil="true" />
-          <Line1 xsi:nil="true" /><Line2 xsi:nil="true" /><Line3 xsi:nil="true" />
-          <Longitude xsi:nil="true" /><Name xsi:nil="true" /><PostalCode xsi:nil="true" />
-          <PostOfficeBox xsi:nil="true" /><PrimaryContactName xsi:nil="true" />
+          <City xsi:nil="true"></City>
+          <County xsi:nil="true"></County>
+          <Country xsi:nil="true"></Country>
+          <Fax xsi:nil="true"></Fax>
+          <FreightTermsCode xsi:nil="true"></FreightTermsCode>
+          <ImportSequenceNumber xsi:nil="true"></ImportSequenceNumber>
+          <Latitude xsi:nil="true"></Latitude>
+          <Line1 xsi:nil="true"></Line1>
+          <Line2 xsi:nil="true"></Line2>
+          <Line3 xsi:nil="true"></Line3>
+          <Longitude xsi:nil="true"></Longitude>
+          <Name xsi:nil="true"></Name>
+          <PostalCode xsi:nil="true"></PostalCode>
+          <PostOfficeBox xsi:nil="true"></PostOfficeBox>
+          <PrimaryContactName xsi:nil="true"></PrimaryContactName>
           <ShippingMethodCode>1</ShippingMethodCode>
-          <StateOrProvince xsi:nil="true" /><Telephone1 xsi:nil="true" />
-          <Telephone2 xsi:nil="true" /><Telephone3 xsi:nil="true" />
-          <TimeZoneRuleVersionNumber xsi:nil="true" /><UPSZone xsi:nil="true" />
-          <UTCOffset xsi:nil="true" /><WebSiteURL xsi:nil="true" />
+          <StateOrProvince xsi:nil="true"></StateOrProvince>
+          <Telephone1 xsi:nil="true"></Telephone1>
+          <Telephone2 xsi:nil="true"></Telephone2>
+          <Telephone3 xsi:nil="true"></Telephone3>
+          <TimeZoneRuleVersionNumber xsi:nil="true"></TimeZoneRuleVersionNumber>
+          <UPSZone xsi:nil="true"></UPSZone>
+          <UTCOffset xsi:nil="true"></UTCOffset>
+          <UTCConversionTimeZoneCode xsi:nil="true"></UTCConversionTimeZoneCode>
         </Address>
       </Addresses>
     </Publisher>
     <RootComponents>
-      <RootComponent type="29"    id="{$flowGuidDashed}" behavior="0" />
-      <RootComponent type="10466" schemaName="$connRefLogical" behavior="0" />
+      <RootComponent type="29" id="{$flowGuidLower}" behavior="0" />
     </RootComponents>
     <MissingDependencies />
   </SolutionManifest>
@@ -92,82 +99,111 @@ $solutionXml = @"
 "@
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# 3. customizations.xml
+# customizations.xml  —  structuur exact overgenomen van demo-export
 # ═══════════════════════════════════════════════════════════════════════════════
 $customizationsXml = @"
 <?xml version="1.0" encoding="utf-8"?>
 <ImportExportXml xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Entities></Entities>
+  <Roles></Roles>
   <Workflows>
-    <Workflow WorkflowId="{$flowGuidDashed}" Name="VEH Copilot Training - Aanmelding" StateCode="1" StatusCode="2">
-      <DesktopFlowModuleId xsi:nil="true" />
+    <Workflow WorkflowId="{$flowGuidLower}" Name="VEH Copilot Training - Aanmelding">
+      <JsonFileName>/Workflows/$flowJsonName</JsonFileName>
+      <Type>1</Type>
+      <Subprocess>0</Subprocess>
       <Category>5</Category>
       <Mode>0</Mode>
       <Scope>4</Scope>
-      <OnDemand>1</OnDemand>
+      <OnDemand>0</OnDemand>
       <TriggerOnCreate>0</TriggerOnCreate>
       <TriggerOnDelete>0</TriggerOnDelete>
       <AsyncAutodelete>0</AsyncAutodelete>
       <SyncWorkflowLogOnFailure>0</SyncWorkflowLogOnFailure>
+      <StateCode>1</StateCode>
+      <StatusCode>2</StatusCode>
       <RunAs>1</RunAs>
       <IsTransacted>1</IsTransacted>
-      <IntroducedVersion>1.0.0.0</IntroducedVersion>
+      <IntroducedVersion>1.0</IntroducedVersion>
       <IsCustomizable>1</IsCustomizable>
       <BusinessProcessType>0</BusinessProcessType>
       <IsCustomProcessingStepAllowedForOtherPublishers>1</IsCustomProcessingStepAllowedForOtherPublishers>
+      <ModernFlowType>0</ModernFlowType>
       <PrimaryEntity>none</PrimaryEntity>
       <LocalizedNames>
         <LocalizedName languagecode="1033" description="VEH Copilot Training - Aanmelding" />
       </LocalizedNames>
-      <Descriptions>
-        <Description languagecode="1033" description="Ontvangt aanmeldingen van de online leeromgeving en stuurt een e-mailnotificatie." />
-      </Descriptions>
-      <JsonFileName>/Workflows/${flowSchemaName}-${flowGuidNoDash}.json</JsonFileName>
     </Workflow>
   </Workflows>
+  <FieldSecurityProfiles></FieldSecurityProfiles>
+  <Templates />
+  <EntityMaps />
+  <EntityRelationships />
+  <OrganizationSettings />
+  <optionsets />
+  <CustomControls />
+  <EntityDataProviders />
   <connectionreferences>
     <connectionreference connectionreferencelogicalname="$connRefLogical">
-      <connectionreferencedisplayname>Office 365 Outlook - VEH Training</connectionreferencedisplayname>
+      <connectionreferencedisplayname>Office 365 Outlook</connectionreferencedisplayname>
       <connectorid>/providers/Microsoft.PowerApps/apis/shared_office365</connectorid>
       <iscustomizable>1</iscustomizable>
+      <promptingbehavior>0</promptingbehavior>
       <statecode>0</statecode>
       <statuscode>1</statuscode>
     </connectionreference>
   </connectionreferences>
+  <Languages>
+    <Language>1033</Language>
+  </Languages>
 </ImportExportXml>
 "@
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# 4. Workflows/{schemaName}-{guidNoDash}.json  — volledige flow-definitie
-#    Single-quoted here-string: PS expandeert GEEN $connections / $schema etc.
-#    Daarna vervangen we de placeholders via .Replace().
+# Workflow JSON  —  OpenApiConnection + parameters (zoals demo-export)
+# Single-quoted here-string: PS expandeert geen $-variabelen binnenin.
 # ═══════════════════════════════════════════════════════════════════════════════
 $flowJson = @'
 {
   "properties": {
     "connectionReferences": {
       "shared_office365": {
-        "runtimeSource": "embedded",
+        "api": {
+          "name": "shared_office365"
+        },
         "connection": {
           "connectionReferenceLogicalName": "CONN_REF_LOGICAL"
         },
-        "api": {
-          "name": "shared_office365"
-        }
+        "runtimeSource": "embedded"
       }
     },
     "definition": {
       "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
       "contentVersion": "1.0.0.0",
-      "parameters": {
-        "$connections":    { "defaultValue": {}, "type": "Object"       },
-        "$authentication": { "defaultValue": {}, "type": "SecureObject" }
+      "actions": {
+        "Send_an_email_(V2)": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "emailMessage/To": "TARGET_EMAIL",
+              "emailMessage/Subject": "Nieuwe deelnemer Copilot-training: @{triggerBody()?['naam']}",
+              "emailMessage/Body": "<table style=\"font-family:Calibri,Arial,sans-serif;font-size:14px;border-collapse:collapse;width:100%;max-width:600px\"><tr><td style=\"background:#3B2785;padding:20px 24px\"><span style=\"color:#F07800;font-size:20px;font-weight:bold\">&#127891;</span><span style=\"color:#ffffff;font-size:18px;font-weight:bold;margin-left:8px\">Nieuwe aanmelding \u2014 Copilot Training VEH</span></td></tr><tr><td style=\"padding:12px 24px;width:130px;font-weight:bold;color:#3B2785;border-bottom:1px solid #E5E7EB\">Naam</td><td style=\"padding:12px 24px;border-bottom:1px solid #E5E7EB\">@{triggerBody()?['naam']}</td></tr><tr style=\"background:#F9FAFB\"><td style=\"padding:12px 24px;font-weight:bold;color:#3B2785;border-bottom:1px solid #E5E7EB\">Functie</td><td style=\"padding:12px 24px;border-bottom:1px solid #E5E7EB\">@{triggerBody()?['functie']}</td></tr><tr><td style=\"padding:12px 24px;font-weight:bold;color:#3B2785;border-bottom:1px solid #E5E7EB\">E-mailadres</td><td style=\"padding:12px 24px;border-bottom:1px solid #E5E7EB\"><a href=\"mailto:@{triggerBody()?['email']}\" style=\"color:#3B2785\">@{triggerBody()?['email']}</a></td></tr><tr style=\"background:#F9FAFB\"><td style=\"padding:12px 24px;font-weight:bold;color:#3B2785;border-bottom:1px solid #E5E7EB;vertical-align:top\">Leerwens</td><td style=\"padding:12px 24px;border-bottom:1px solid #E5E7EB\">@{triggerBody()?['leerwens']}</td></tr><tr><td style=\"padding:12px 24px;font-weight:bold;color:#3B2785\">Datum &amp; tijd</td><td style=\"padding:12px 24px\">@{triggerBody()?['datum']} om @{triggerBody()?['tijdstip']}</td></tr><tr><td style=\"background:#FFF3E0;padding:12px 24px;font-size:11px;color:#9CA3AF;border-top:3px solid #F07800\">Verstuurd vanuit de Online Leeromgeving \u2022 Copilot in Dynamics 365 CE \u2022 Vereniging Eigen Huis</td></tr></table>",
+              "emailMessage/Importance": "Normal"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+              "operationId": "SendEmailV2",
+              "connectionName": "shared_office365"
+            }
+          },
+          "runAfter": {}
+        }
       },
       "triggers": {
         "manual": {
           "type": "Request",
           "kind": "Http",
           "inputs": {
-            "method": "POST",
+            "triggerAuthenticationType": "All",
             "schema": {
               "type": "object",
               "properties": {
@@ -182,49 +218,15 @@ $flowJson = @'
           }
         }
       },
-      "actions": {
-        "Stuur_aanmeldingsmail": {
-          "runAfter": {},
-          "type": "ApiConnection",
-          "inputs": {
-            "host": {
-              "connection": {
-                "name": "@parameters('$connections')['shared_office365']['connectionId']"
-              }
-            },
-            "method": "post",
-            "path": "/v2/Mail",
-            "body": {
-              "To": "TARGET_EMAIL",
-              "Subject": "Nieuwe deelnemer Copilot-training: @{triggerBody()?['naam']}",
-              "Body": "<table style='font-family:Calibri,Arial,sans-serif;font-size:14px;border-collapse:collapse;width:100%;max-width:600px'><tr style='background:#3B2785'><td colspan='2' style='padding:16px 20px;color:white;font-size:18px;font-weight:bold'>&#127891; Nieuwe aanmelding &#8212; Copilot Training VEH</td></tr><tr><td style='padding:10px 20px;width:140px;font-weight:bold;border-bottom:1px solid #eee'>Naam</td><td style='padding:10px 20px;border-bottom:1px solid #eee'>@{triggerBody()?['naam']}</td></tr><tr style='background:#f9f9f9'><td style='padding:10px 20px;font-weight:bold;border-bottom:1px solid #eee'>Functie</td><td style='padding:10px 20px;border-bottom:1px solid #eee'>@{triggerBody()?['functie']}</td></tr><tr><td style='padding:10px 20px;font-weight:bold;border-bottom:1px solid #eee'>E-mailadres</td><td style='padding:10px 20px;border-bottom:1px solid #eee'>@{triggerBody()?['email']}</td></tr><tr style='background:#f9f9f9'><td style='padding:10px 20px;font-weight:bold;border-bottom:1px solid #eee'>Leerwens</td><td style='padding:10px 20px;border-bottom:1px solid #eee'>@{triggerBody()?['leerwens']}</td></tr><tr><td style='padding:10px 20px;font-weight:bold'>Datum &amp; tijd</td><td style='padding:10px 20px'>@{triggerBody()?['datum']} om @{triggerBody()?['tijdstip']}</td></tr><tr style='background:#FFF3E0'><td colspan='2' style='padding:10px 20px;font-size:12px;color:#888'>Verstuurd vanuit de Online Leeromgeving Copilot in Dynamics 365 CE &bull; Vereniging Eigen Huis</td></tr></table>",
-              "Importance": "Normal",
-              "IsHtml": true
-            }
-          }
-        },
-        "HTTP_respons": {
-          "runAfter": {
-            "Stuur_aanmeldingsmail": ["Succeeded", "Failed"]
-          },
-          "type": "Response",
-          "kind": "Http",
-          "inputs": {
-            "statusCode": 200,
-            "headers": {
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": "*"
-            },
-            "body": {
-              "status": "ok",
-              "message": "Aanmelding ontvangen"
-            }
-          }
-        }
+      "parameters": {
+        "$authentication": { "defaultValue": {}, "type": "SecureObject" },
+        "$connections":    { "defaultValue": {}, "type": "Object" }
       },
       "outputs": {}
-    }
-  }
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
 }
 '@
 $flowJson = $flowJson.Replace("CONN_REF_LOGICAL", $connRefLogical).Replace("TARGET_EMAIL", $Email)
@@ -233,7 +235,7 @@ $flowJson = $flowJson.Replace("CONN_REF_LOGICAL", $connRefLogical).Replace("TARG
 [System.IO.File]::WriteAllText("$tempDir\[Content_Types].xml", $contentTypes, $enc)
 [System.IO.File]::WriteAllText("$tempDir\solution.xml", $solutionXml, $enc)
 [System.IO.File]::WriteAllText("$tempDir\customizations.xml", $customizationsXml, $enc)
-[System.IO.File]::WriteAllText("$wfDir\${flowSchemaName}-${flowGuidNoDash}.json", $flowJson, $enc)
+[System.IO.File]::WriteAllText("$wfDir\$flowJsonName", $flowJson, $enc)
 
 # ── Zip maken ─────────────────────────────────────────────────────────────────
 if (Test-Path $outZip) { Remove-Item $outZip -Force }
@@ -245,10 +247,4 @@ Write-Host "Klaar!" -ForegroundColor Green
 Write-Host "  Bestand   : $outZip" -ForegroundColor Cyan
 Write-Host "  Ontvanger : $Email"  -ForegroundColor Cyan
 Write-Host ""
-Write-Host "Importeren in Power Automate:" -ForegroundColor Yellow
-Write-Host "  1. Ga naar https://make.powerautomate.com" -ForegroundColor White
-Write-Host "  2. Klik links op  Solutions  (Oplossingen)" -ForegroundColor White
-Write-Host "  3. Klik op  Import Solution  >  Browse  > kies VEH_Copilot_Training_Flow.zip" -ForegroundColor White
-Write-Host "  4. Klik op  Next  >  koppel je Office 365 Outlook-verbinding  >  Import" -ForegroundColor White
-Write-Host "  5. Open de flow na import  >  kopieer de HTTP POST-URL uit de trigger" -ForegroundColor White
-Write-Host "  6. Plak de URL in index.html bij:  const POWER_AUTOMATE_URL = ..." -ForegroundColor White
+Write-Host "Importeren: make.powerautomate.com > Solutions > Import Solution" -ForegroundColor Yellow
