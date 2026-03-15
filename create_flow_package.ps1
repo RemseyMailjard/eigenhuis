@@ -83,7 +83,7 @@ $solutionXml = @"
       </Addresses>
     </Publisher>
     <RootComponents>
-      <RootComponent type="29"    schemaName="$flowSchemaName" behavior="0" />
+      <RootComponent type="29"    id="{$flowGuidDashed}" behavior="0" />
       <RootComponent type="10466" schemaName="$connRefLogical" behavior="0" />
     </RootComponents>
     <MissingDependencies />
