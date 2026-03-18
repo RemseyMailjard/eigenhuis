@@ -242,7 +242,7 @@
             "parameters": {
               "dataset": "https://activaa.sharepoint.com/sites/Klanten",
               "parameters/method": "POST",
-              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('GUID_maken')}/1. Intern')/ListItemAllFields/breakroleinheritance(copyRoleAssignments=false,clearSubscopes=true)"
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}/1. Intern')/ListItemAllFields/breakroleinheritance(copyRoleAssignments=false,clearSubscopes=true)"
             },
             "host": {
               "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
@@ -266,7 +266,7 @@
             "parameters": {
               "dataset": "https://activaa.sharepoint.com/sites/Klanten",
               "parameters/method": "POST",
-              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('GUID_maken')}/2. Aandeelhouder')/ListItemAllFields/breakroleinheritance(copyRoleAssignments=false, clearSubscopes=true)"
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}/2. Aandeelhouder')/ListItemAllFields/breakroleinheritance(copyRoleAssignments=false,clearSubscopes=true)"
             },
             "host": {
               "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
@@ -372,7 +372,7 @@
             "parameters": {
               "dataset": "https://activaa.sharepoint.com/sites/Klanten",
               "parameters/method": "POST",
-              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('GUID_maken')}/3. Directie')/ListItemAllFields/breakroleinheritance(copyRoleAssignments=false, clearSubscopes=true)"
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}/3. Directie')/ListItemAllFields/breakroleinheritance(copyRoleAssignments=false,clearSubscopes=true)"
             },
             "host": {
               "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
@@ -396,7 +396,7 @@
             "parameters": {
               "dataset": "https://activaa.sharepoint.com/sites/Klanten",
               "parameters/method": "POST",
-              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('GUID_maken')}/4. Medewerker')/ListItemAllFields/breakroleinheritance(copyRoleAssignments=false, clearSubscopes=true)"
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}/4. Medewerker')/ListItemAllFields/breakroleinheritance(copyRoleAssignments=false,clearSubscopes=true)"
             },
             "host": {
               "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
@@ -1292,7 +1292,7 @@
             "parameters": {
               "dataset": "https://activaa.sharepoint.com/sites/Klanten/",
               "parameters/method": "POST",
-              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('GUID_maken')}/ListItemAllFields/breakroleinheritance(copyRoleAssignments=false,clearSubscopes=true)"
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}')/ListItemAllFields/breakroleinheritance(copyRoleAssignments=false,clearSubscopes=true)"
             },
             "host": {
               "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
@@ -1401,6 +1401,179 @@
             "authentication": "@parameters('$authentication')"
           }
         },
+        "AddRoleAssignment_Hoofdmap_RO": {
+          "runAfter": {
+            "Update_a_row_KlantgroepHoofdmapRO": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ff0000000001"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}')/ListItemAllFields/roleassignments/addroleassignment(principalid=@{outputs('PrincipalId_Hoofdmap_RO')},roleDefId=1073741826)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "AddRoleAssignment_Hoofdmap_RW": {
+          "runAfter": {
+            "Update_a_row_KlantgroepHoofdmapRW": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ff0000000002"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}')/ListItemAllFields/roleassignments/addroleassignment(principalid=@{outputs('PrincipalId_Hoofdmap_RW')},roleDefId=1073741827)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "AddRoleAssignment_1_Intern": {
+          "runAfter": {
+            "Update_a_row_Klantgroep_Intern": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ff0000000003"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}/1. Intern')/ListItemAllFields/roleassignments/addroleassignment(principalid=@{outputs('PrincipalId_1_Intern')},roleDefId=1073741827)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "AddRoleAssignment_2_Aandeelhouder": {
+          "runAfter": {
+            "Update_a_row_Klantgroep_Aandeelhouder": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ff0000000004"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}/2. Aandeelhouder')/ListItemAllFields/roleassignments/addroleassignment(principalid=@{outputs('PrincipalId_2_Aandeelhouder')},roleDefId=1073741827)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "AddRoleAssignment_3_Directie": {
+          "runAfter": {
+            "Update_a_row_Klantgroep_Directie": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ff0000000005"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}/3. Directie')/ListItemAllFields/roleassignments/addroleassignment(principalid=@{outputs('PrincipalId_3_Directie')},roleDefId=1073741827)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "AddRoleAssignment_4_Medewerker": {
+          "runAfter": {
+            "Update_a_row_Klantgroep_Medewerker": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ff0000000006"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}/4. Medewerker')/ListItemAllFields/roleassignments/addroleassignment(principalid=@{outputs('PrincipalId_4_Medewerker')},roleDefId=1073741827)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "AddToSiteMembers_Hoofdmap_RW": {
+          "runAfter": {
+            "AddRoleAssignment_Hoofdmap_RW": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-aa0000000001"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/AssociatedMemberGroup/users",
+              "parameters/headers": {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose"
+              },
+              "parameters/body": "{\"logonName\":\"c:0t.c|tenant|@{outputs('Create_security_group_Hoofdmap_RW')?['body/id']}\"}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
         "Status_Gereed": {
           "runAfter": {
             "Add_Intern_groep_to_Hoofdmap_RO_groep": [
@@ -1413,6 +1586,24 @@
               "Succeeded"
             ],
             "Add_Medewerker_groep_to_Hoofdmap_RO_groep": [
+              "Succeeded"
+            ],
+            "AddRoleAssignment_Hoofdmap_RO": [
+              "Succeeded"
+            ],
+            "AddToSiteMembers_Hoofdmap_RW": [
+              "Succeeded"
+            ],
+            "AddRoleAssignment_1_Intern": [
+              "Succeeded"
+            ],
+            "AddRoleAssignment_2_Aandeelhouder": [
+              "Succeeded"
+            ],
+            "AddRoleAssignment_3_Directie": [
+              "Succeeded"
+            ],
+            "AddRoleAssignment_4_Medewerker": [
               "Succeeded"
             ]
           },
