@@ -169,8 +169,8 @@
           "inputs": {
             "parameters": {
               "dataset": "https://activaa.sharepoint.com/sites/Klanten",
-              "table": "@outputs('Clientnaam')",
-              "parameters/path": "/1. Intern"
+              "table": "account",
+              "parameters/path": "/@{outputs('Clientnaam')}/1. Intern"
             },
             "host": {
               "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
@@ -193,8 +193,8 @@
           "inputs": {
             "parameters": {
               "dataset": "https://activaa.sharepoint.com/sites/Klanten",
-              "table": "@outputs('Clientnaam')",
-              "parameters/path": "/2. Aandeelhouder"
+              "table": "account",
+              "parameters/path": "/@{outputs('Clientnaam')}/2. Aandeelhouder"
             },
             "host": {
               "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
@@ -323,8 +323,8 @@
           "inputs": {
             "parameters": {
               "dataset": "https://activaa.sharepoint.com/sites/Klanten",
-              "table": "@outputs('Clientnaam')",
-              "parameters/path": "/3. Directie"
+              "table": "account",
+              "parameters/path": "/@{outputs('Clientnaam')}/3. Directie"
             },
             "host": {
               "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
@@ -347,8 +347,8 @@
           "inputs": {
             "parameters": {
               "dataset": "https://activaa.sharepoint.com/sites/Klanten",
-              "table": "@outputs('Clientnaam')",
-              "parameters/path": "/4. Medewerker"
+              "table": "account",
+              "parameters/path": "/@{outputs('Clientnaam')}/4. Medewerker"
             },
             "host": {
               "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
@@ -1264,7 +1264,7 @@
             "operationMetadataId": "48412df6-5324-4534-a623-c0f7aac30f79"
           },
           "type": "Compose",
-          "inputs": "@replace(\r\n  body('Een_HTTP-aanvraag_verzenden_naar_SharePoint_-_Library_aanmaken')?['d']?['DocumentTemplateUrl'],\r\n  '/Forms/template.dotx',\r\n  ''\r\n)\r\n"
+          "inputs": "/sites/Klanten/account/@{outputs('Clientnaam')}"
         },
         "Compose_-_SharePoint_URL": {
           "runAfter": {
@@ -1276,7 +1276,7 @@
             "operationMetadataId": "1da1447e-1d24-4feb-b042-569dc0fcf0f7"
           },
           "type": "Compose",
-          "inputs": "@concat(\r\n  'https://activaa.sharepoint.com',\r\n  replace(\r\n    body('Een_HTTP-aanvraag_verzenden_naar_SharePoint_-_Library_aanmaken')?['d']?['DocumentTemplateUrl'],\r\n    '/Forms/template.dotx',\r\n    ''\r\n  )\r\n)\r\n"
+          "inputs": "https://activaa.sharepoint.com/sites/Klanten/account/@{outputs('Clientnaam')}"
         },
         "Send_an_HTTP_request_to_SharePoint_-_Break_Role_Inheritance": {
           "runAfter": {
