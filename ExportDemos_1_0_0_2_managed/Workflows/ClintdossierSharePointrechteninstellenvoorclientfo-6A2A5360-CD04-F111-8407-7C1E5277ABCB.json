@@ -1,0 +1,1634 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "sk_sharedcommondataserviceforapps_9a1e2"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      },
+      "shared_sharepointonline-1": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "sk_sharedsharepointonline_8e08c"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      },
+      "shared_azuread": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "sk_sharedazuread_2d436"
+        },
+        "api": {
+          "name": "shared_azuread"
+        }
+      },
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "sk_sharedsharepointonline_1222c"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "When_a_row_is_added,_modified_or_deleted": {
+          "metadata": {
+            "operationMetadataId": "1664b3fc-9f3b-45a6-9d09-c0ee8732589b"
+          },
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "parameters": {
+              "subscriptionRequest/message": 1,
+              "subscriptionRequest/entityname": "account",
+              "subscriptionRequest/scope": 4,
+              "subscriptionRequest/name": "9e1a198d-4104-f111-8406-000d3ab7bdcf"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Get_a_row_by_ID": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "15fc9114-b1e3-4d4a-83f8-61b66a135bd5"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@triggerOutputs()?['body/accountid']"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "GetItem"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Een_HTTP-aanvraag_verzenden_naar_SharePoint_-_Library_aanmaken": {
+          "runAfter": {
+            "Update_a_row_-_ClientnaamOud": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "d29886e4-82c9-4bbc-a8d8-2d50fc8dfe8f"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/lists",
+              "parameters/headers": {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose"
+              },
+              "parameters/body": "{\n  \"__metadata\": { \"type\": \"SP.List\" },\n  \"BaseTemplate\": 101,\n  \"Title\": \"@{outputs('GUID_maken')}\",\n  \"Description\": \"Automatisch aangemaakt\"\n}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline-1",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Delay": {
+          "runAfter": {
+            "Update_a_row_KlantgroepHoofdmapRW": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "89e026d2-fe49-4858-b42a-e83291b2e211"
+          },
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 3,
+              "unit": "Second"
+            }
+          }
+        },
+        "Delay_1": {
+          "runAfter": {
+            "Update_a_row_KlantgroepHoofdmapRW": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "899c2ae9-dfd6-483f-ba90-433bcd67315f"
+          },
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 3,
+              "unit": "Second"
+            }
+          }
+        },
+        "Create_new_folder_-_1.Intern": {
+          "runAfter": {
+            "Delay": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "b303485a-5930-4591-8faf-50ee877b3ff9"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "table": "@outputs('Clientnaam')",
+              "parameters/path": "/1. Intern"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline-1",
+              "operationId": "CreateNewFolder"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Create_new_folder_-_2._Aandeelhouder": {
+          "runAfter": {
+            "Delay_1": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "5ae637b3-9d0e-4e6f-9538-07c6f1bd6cfe"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "table": "@outputs('Clientnaam')",
+              "parameters/path": "/2. Aandeelhouder"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline-1",
+              "operationId": "CreateNewFolder"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Clientnaam": {
+          "runAfter": {
+            "Client": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "34513e72-75ff-48c3-94e2-8efbda20da55"
+          },
+          "type": "Compose",
+          "inputs": "@trim(string(outputs('Client')))"
+        },
+        "URL_SharePoint": {
+          "runAfter": {
+            "GUID_maken": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "2f3ea967-b3cd-4e12-b513-2ceadd0a92a8"
+          },
+          "type": "Compose",
+          "inputs": "https://activaa.sharepoint.com/sites/Klanten/@{outputs('GUID_maken')}"
+        },
+        "Send_an_HTTP_request_to_SharePoint_-_Break_Role_Inheritance_1._Intern": {
+          "runAfter": {
+            "Create_new_folder_-_1.Intern": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a13e0a1b-4dfc-480c-825f-5b3051a36506"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}/1. Intern')/ListItemAllFields/breakroleinheritance(copyRoleAssignments=false,clearSubscopes=true)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline-1",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Send_an_HTTP_request_to_SharePoint_-_Break_Role_Inheritance_2._Aandeelhouder": {
+          "runAfter": {
+            "Create_new_folder_-_2._Aandeelhouder": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "45b93751-474c-4ecb-96d5-737cde6eb47c"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}/2. Aandeelhouder')/ListItemAllFields/breakroleinheritance(copyRoleAssignments=false,clearSubscopes=true)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline-1",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Delay_2": {
+          "runAfter": {
+            "Update_a_row_KlantgroepHoofdmapRW": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "0eaff1e9-7716-4b8f-afd7-283ac0c8bd9e"
+          },
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 3,
+              "unit": "Second"
+            }
+          }
+        },
+        "Delay_2_1": {
+          "runAfter": {
+            "Update_a_row_KlantgroepHoofdmapRW": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "6de5e029-86ef-4c22-ad51-0e6767f5ffe2"
+          },
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 3,
+              "unit": "Second"
+            }
+          }
+        },
+        "Create_new_folder_-_3._Directie": {
+          "runAfter": {
+            "Delay_2": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "5ae637b3-9d0e-4e6f-9538-07c6f1bd6cfe"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "table": "@outputs('Clientnaam')",
+              "parameters/path": "/3. Directie"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline-1",
+              "operationId": "CreateNewFolder"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Create_new_folder_-_4._Medewerker": {
+          "runAfter": {
+            "Delay_2_1": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "5ae637b3-9d0e-4e6f-9538-07c6f1bd6cfe"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "table": "@outputs('Clientnaam')",
+              "parameters/path": "/4. Medewerker"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline-1",
+              "operationId": "CreateNewFolder"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Send_an_HTTP_request_to_SharePoint_-_Break_Role_Inheritance_3._Directie": {
+          "runAfter": {
+            "Create_new_folder_-_3._Directie": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a13e0a1b-4dfc-480c-825f-5b3051a36506"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}/3. Directie')/ListItemAllFields/breakroleinheritance(copyRoleAssignments=false,clearSubscopes=true)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline-1",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Send_an_HTTP_request_to_SharePoint_-_Break_Role_Inheritance_4._Medewerker": {
+          "runAfter": {
+            "Create_new_folder_-_4._Medewerker": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a13e0a1b-4dfc-480c-825f-5b3051a36506"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}/4. Medewerker')/ListItemAllFields/breakroleinheritance(copyRoleAssignments=false,clearSubscopes=true)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline-1",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Create_security_group_Hoofdmap_RO": {
+          "runAfter": {
+            "Send_an_HTTP_request_to_SharePoint_-_Naam_Aanpassen": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a13e6b41-296c-4d86-b003-e5c28da422bc"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_azuread",
+              "connectionName": "shared_azuread",
+              "operationId": "CreateSecurityGroup"
+            },
+            "parameters": {
+              "body/displayName": "AG_@{outputs('Clientnaam')}_RO",
+              "body/description": "Access Groep t.b.v. @{outputs('Clientnaam')} folder RO t.b.v. Subfolders",
+              "body/mailNickname": "@outputs('Clientnaam')",
+              "body/securityEnabled": true,
+              "body/mailEnabled": false
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Create_security_group_Hoofdmap_RW": {
+          "runAfter": {
+            "Update_a_row_KlantgroepHoofdmapRO": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "f40753f6-105c-4892-88d4-6df7cea2aca8"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_azuread",
+              "connectionName": "shared_azuread",
+              "operationId": "CreateSecurityGroup"
+            },
+            "parameters": {
+              "body/displayName": "AG_@{outputs('Clientnaam')}_RW",
+              "body/description": "Access Groep t.b.v. @{outputs('Clientnaam')} folder RO t.b.v. medewerkers Activaa",
+              "body/mailNickname": "@outputs('Clientnaam')",
+              "body/securityEnabled": true,
+              "body/mailEnabled": false
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Add_Intern_groep_to_Hoofdmap_RO_groep": {
+          "runAfter": {
+            "Delay_3": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "b92c4eb7-6f7d-4833-9938-77ebbdbef1bc"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_azuread",
+              "connectionName": "shared_azuread",
+              "operationId": "AddUserToGroup"
+            },
+            "parameters": {
+              "id": "@outputs('Create_security_group_Hoofdmap_RO')?['body/id']",
+              "body/@odata.id": "@outputs('Create_security_group_1._Intern')?['body/id']"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Delay_3": {
+          "runAfter": {
+            "Update_a_row_Klantgroep_Intern": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "caa65446-9eaf-448d-80d9-1a452a5ea568"
+          },
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 3,
+              "unit": "Second"
+            }
+          }
+        },
+        "Delay_3_1": {
+          "runAfter": {
+            "Update_a_row_Klantgroep_Aandeelhouder": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "af5a434e-5244-46e4-8983-8899cc8a0aff"
+          },
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 3,
+              "unit": "Second"
+            }
+          }
+        },
+        "Delay_3_2": {
+          "runAfter": {
+            "Update_a_row_Klantgroep_Directie": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "36b08a7b-22d7-4167-8205-be587b03c6dc"
+          },
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 3,
+              "unit": "Second"
+            }
+          }
+        },
+        "Delay_3_3": {
+          "runAfter": {
+            "Update_a_row_Klantgroep_Medewerker": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "b4be5897-9780-4732-8843-31da61f01553"
+          },
+          "type": "Wait",
+          "inputs": {
+            "interval": {
+              "count": 3,
+              "unit": "Second"
+            }
+          }
+        },
+        "Add_Aandeelhouder_groep_to_Hoofdmap_RO_groep": {
+          "runAfter": {
+            "Delay_3_1": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "f285a5d0-1b98-43bb-9b46-3ccdab1b8663"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_azuread",
+              "connectionName": "shared_azuread",
+              "operationId": "AddUserToGroup"
+            },
+            "parameters": {
+              "id": "@outputs('Create_security_group_Hoofdmap_RO')?['body/id']",
+              "body/@odata.id": "@outputs('Create_security_group_2._Aandeelhouder')?['body/id']"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Add_Directie_groep_to_Hoofdmap_RO_groep": {
+          "runAfter": {
+            "Delay_3_2": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "0f9a48aa-37a8-4d58-9835-3464afe776ab"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_azuread",
+              "connectionName": "shared_azuread",
+              "operationId": "AddUserToGroup"
+            },
+            "parameters": {
+              "id": "@outputs('Create_security_group_Hoofdmap_RO')?['body/id']",
+              "body/@odata.id": "@outputs('Create_security_group_3._Directie')?['body/id']"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Add_Medewerker_groep_to_Hoofdmap_RO_groep": {
+          "runAfter": {
+            "Delay_3_3": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "002f4ef3-9e2d-4b05-8740-d4e2b60f58a5"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_azuread",
+              "connectionName": "shared_azuread",
+              "operationId": "AddUserToGroup"
+            },
+            "parameters": {
+              "id": "@outputs('Create_security_group_Hoofdmap_RO')?['body/id']",
+              "body/@odata.id": "@outputs('Create_security_group_4._Medewerker')?['body/id']"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Create_security_group_1._Intern": {
+          "runAfter": {
+            "Send_an_HTTP_request_to_SharePoint_-_Break_Role_Inheritance_1._Intern": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "0593f68d-546f-41e9-81c1-c991dc29a693"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_azuread",
+              "connectionName": "shared_azuread",
+              "operationId": "CreateSecurityGroup"
+            },
+            "parameters": {
+              "body/displayName": "AG_@{outputs('Clientnaam')}_1.Intern",
+              "body/description": "Access Groep t.b.v. @{outputs('Clientnaam')} folder 1. Intern",
+              "body/mailNickname": "@outputs('Clientnaam')",
+              "body/securityEnabled": true,
+              "body/mailEnabled": false
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Create_security_group_2._Aandeelhouder": {
+          "runAfter": {
+            "Send_an_HTTP_request_to_SharePoint_-_Break_Role_Inheritance_2._Aandeelhouder": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "985b7731-10db-42ea-980b-51f3ae993d41"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_azuread",
+              "connectionName": "shared_azuread",
+              "operationId": "CreateSecurityGroup"
+            },
+            "parameters": {
+              "body/displayName": "AG_@{outputs('Clientnaam')}_2.Aandeelhouder",
+              "body/description": "Access Groep t.b.v. @{outputs('Clientnaam')} folder 2. Aandeelhouder",
+              "body/mailNickname": "@outputs('Clientnaam')",
+              "body/securityEnabled": true,
+              "body/mailEnabled": false
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Create_security_group_3._Directie": {
+          "runAfter": {
+            "Send_an_HTTP_request_to_SharePoint_-_Break_Role_Inheritance_3._Directie": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "c28d954b-6727-42a8-bad1-42ccfba862a7"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_azuread",
+              "connectionName": "shared_azuread",
+              "operationId": "CreateSecurityGroup"
+            },
+            "parameters": {
+              "body/displayName": "AG_@{outputs('Clientnaam')}_3.Directie",
+              "body/description": "Access Groep t.b.v. @{outputs('Clientnaam')} folder 3. Directie",
+              "body/mailNickname": "@outputs('Clientnaam')",
+              "body/securityEnabled": true,
+              "body/mailEnabled": false
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Create_security_group_4._Medewerker": {
+          "runAfter": {
+            "Send_an_HTTP_request_to_SharePoint_-_Break_Role_Inheritance_4._Medewerker": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "67660f77-bff0-4dcc-bc25-3a9c26a30c16"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_azuread",
+              "connectionName": "shared_azuread",
+              "operationId": "CreateSecurityGroup"
+            },
+            "parameters": {
+              "body/displayName": "AG_@{outputs('Clientnaam')}_4.Medewerker",
+              "body/description": "Access Groep t.b.v. @{outputs('Clientnaam')} folder 4. Medewerker",
+              "body/mailNickname": "@outputs('Clientnaam')",
+              "body/securityEnabled": true,
+              "body/mailEnabled": false
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Update_a_row_-_SharePoint_URL": {
+          "runAfter": {
+            "URL_SharePoint": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "80ff531c-efb4-4ebe-8e88-d0bbdd3a9311"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@outputs('Get_a_row_by_ID')?['body/accountid']",
+              "item/cr283_sharepoint": "@outputs('URL_SharePoint')"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "GUID_maken": {
+          "runAfter": {
+            "Clientnaam": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a87ac605-34ef-427c-8ffd-1ce77a087d89"
+          },
+          "type": "Compose",
+          "inputs": "@substring(replace(guid(), '-', ''), 0, 15)"
+        },
+        "Send_an_HTTP_request_to_SharePoint_-_Naam_Aanpassen": {
+          "runAfter": {
+            "Send_an_HTTP_request_to_SharePoint_-_Break_Role_Inheritance": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "77b93a1b-05f7-4f45-9dfb-849cc56fb33d"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/lists/GetByTitle('@{outputs('GUID_maken')}')\n",
+              "parameters/headers": {
+                "IF-MATCH": "*",
+                "X-HTTP-Method": "MERGE",
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose"
+              },
+              "parameters/body": "{\n  \"__metadata\": { \"type\": \"SP.List\" },\n  \"Title\": \"@{outputs('Clientnaam')}\"\n}\n"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Update_a_row_-_GUID": {
+          "runAfter": {
+            "Update_a_row_-_SharePoint_URL": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "3f72c149-aab7-462d-aa5c-27f7e037da69"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@outputs('Update_a_row_-_SharePoint_URL')?['body/accountid']",
+              "item/cr283_guid": "@outputs('GUID_maken')"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "EnsureUser_Hoofdmap_RO": {
+          "runAfter": {
+            "Create_security_group_Hoofdmap_RO": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000001"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/ensureUser",
+              "parameters/headers": {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose"
+              },
+              "parameters/body": "{\"logonName\":\"c:0t.c|tenant|@{outputs('Create_security_group_Hoofdmap_RO')?['body/id']}\"}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "PrincipalId_Hoofdmap_RO": {
+          "runAfter": {
+            "EnsureUser_Hoofdmap_RO": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000002"
+          },
+          "type": "Compose",
+          "inputs": "@body('EnsureUser_Hoofdmap_RO')?['d']?['Id']"
+        },
+        "Update_a_row_KlantgroepHoofdmapRO": {
+          "runAfter": {
+            "PrincipalId_Hoofdmap_RO": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "9914a0b9-444b-4ff4-90c0-ff18f2ff48fc"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@outputs('Update_a_row_-_GUID')?['body/accountid']",
+              "item/cr283_klantgroep_ro": "@outputs('Create_security_group_Hoofdmap_RO')?['body/id']",
+              "item/cr283_sharepoint": "@outputs('Compose_-_SharePoint_URL')",
+              "item/cr283_sharepointdocumentbibliotheekguid": "@outputs('Compose_LibraryId')",
+              "item/cr283_sharepointrootfoldernaam": "@outputs('Compose_-_ServerRelativeUrl')"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "EnsureUser_Hoofdmap_RW": {
+          "runAfter": {
+            "Create_security_group_Hoofdmap_RW": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000003"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/ensureUser",
+              "parameters/headers": {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose"
+              },
+              "parameters/body": "{\"logonName\":\"c:0t.c|tenant|@{outputs('Create_security_group_Hoofdmap_RW')?['body/id']}\"}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "PrincipalId_Hoofdmap_RW": {
+          "runAfter": {
+            "EnsureUser_Hoofdmap_RW": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000004"
+          },
+          "type": "Compose",
+          "inputs": "@body('EnsureUser_Hoofdmap_RW')?['d']?['Id']"
+        },
+        "Update_a_row_KlantgroepHoofdmapRW": {
+          "runAfter": {
+            "PrincipalId_Hoofdmap_RW": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "d7f411e0-cd45-4f0f-9321-632bc5ba3bc3"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@outputs('Update_a_row_-_GUID')?['body/accountid']",
+              "item/cr283_klantgroep_rw": "@outputs('Create_security_group_Hoofdmap_RW')?['body/id']"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "EnsureUser_1_Intern": {
+          "runAfter": {
+            "Create_security_group_1._Intern": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000005"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/ensureUser",
+              "parameters/headers": {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose"
+              },
+              "parameters/body": "{\"logonName\":\"c:0t.c|tenant|@{outputs('Create_security_group_1._Intern')?['body/id']}\"}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "PrincipalId_1_Intern": {
+          "runAfter": {
+            "EnsureUser_1_Intern": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000006"
+          },
+          "type": "Compose",
+          "inputs": "@body('EnsureUser_1_Intern')?['d']?['Id']"
+        },
+        "Update_a_row_Klantgroep_Intern": {
+          "runAfter": {
+            "PrincipalId_1_Intern": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "56d9ca3e-6ea6-434f-83b1-951fdf2ccf55"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@outputs('Update_a_row_-_GUID')?['body/accountid']",
+              "item/cr283_klantgroep_intern": "@outputs('Create_security_group_1._Intern')?['body/id']"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "EnsureUser_2_Aandeelhouder": {
+          "runAfter": {
+            "Create_security_group_2._Aandeelhouder": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000007"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/ensureUser",
+              "parameters/headers": {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose"
+              },
+              "parameters/body": "{\"logonName\":\"c:0t.c|tenant|@{outputs('Create_security_group_2._Aandeelhouder')?['body/id']}\"}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "PrincipalId_2_Aandeelhouder": {
+          "runAfter": {
+            "EnsureUser_2_Aandeelhouder": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000008"
+          },
+          "type": "Compose",
+          "inputs": "@body('EnsureUser_2_Aandeelhouder')?['d']?['Id']"
+        },
+        "Update_a_row_Klantgroep_Aandeelhouder": {
+          "runAfter": {
+            "PrincipalId_2_Aandeelhouder": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "26c971f5-36c4-4b44-8ede-fdd89cbdec31"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@outputs('Update_a_row_-_GUID')?['body/accountid']",
+              "item/cr283_klantgroep_aandeelhouder": "@outputs('Create_security_group_2._Aandeelhouder')?['body/id']"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "EnsureUser_3_Directie": {
+          "runAfter": {
+            "Create_security_group_3._Directie": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000009"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/ensureUser",
+              "parameters/headers": {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose"
+              },
+              "parameters/body": "{\"logonName\":\"c:0t.c|tenant|@{outputs('Create_security_group_3._Directie')?['body/id']}\"}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "PrincipalId_3_Directie": {
+          "runAfter": {
+            "EnsureUser_3_Directie": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000010"
+          },
+          "type": "Compose",
+          "inputs": "@body('EnsureUser_3_Directie')?['d']?['Id']"
+        },
+        "Update_a_row_Klantgroep_Directie": {
+          "runAfter": {
+            "PrincipalId_3_Directie": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "22088b2e-3321-439d-829b-67f19a764e77"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@outputs('Update_a_row_-_GUID')?['body/accountid']",
+              "item/cr283_klantgroep_directie": "@outputs('Create_security_group_3._Directie')?['body/id']"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "EnsureUser_4_Medewerker": {
+          "runAfter": {
+            "Create_security_group_4._Medewerker": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000011"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/ensureUser",
+              "parameters/headers": {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose"
+              },
+              "parameters/body": "{\"logonName\":\"c:0t.c|tenant|@{outputs('Create_security_group_4._Medewerker')?['body/id']}\"}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "PrincipalId_4_Medewerker": {
+          "runAfter": {
+            "EnsureUser_4_Medewerker": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000012"
+          },
+          "type": "Compose",
+          "inputs": "@body('EnsureUser_4_Medewerker')?['d']?['Id']"
+        },
+        "Update_a_row_Klantgroep_Medewerker": {
+          "runAfter": {
+            "PrincipalId_4_Medewerker": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "69907c11-5afe-4b64-a7ed-180d3c7abdfe"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@outputs('Update_a_row_-_GUID')?['body/accountid']",
+              "item/cr283_klantgroep_medewerker": "@outputs('Create_security_group_4._Medewerker')?['body/id']"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Update_a_row_-_ClientnaamOud": {
+          "runAfter": {
+            "Update_a_row_-_GUID": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "7104b448-a6cb-4104-ba43-61610552df11"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@outputs('Update_a_row_-_GUID')?['body/accountid']",
+              "item/cr283_klantgroep_naam": "@outputs('Clientnaam')"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Client": {
+          "runAfter": {
+            "Get_a_row_by_ID": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "80cb5dd6-71ce-4a02-8345-9cd93be3c9c1"
+          },
+          "type": "Compose",
+          "inputs": "@replace(\r\n  replace(outputs('Get_a_row_by_ID')?['body/name'], '.', ''),\r\n  ' ',\r\n  ''\r\n)"
+        },
+        "Compose_LibraryId": {
+          "runAfter": {
+            "Een_HTTP-aanvraag_verzenden_naar_SharePoint_-_Library_aanmaken": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "9cb71dad-22c7-43e3-918f-2210a7181b0a"
+          },
+          "type": "Compose",
+          "inputs": "@body('Een_HTTP-aanvraag_verzenden_naar_SharePoint_-_Library_aanmaken')?['d']?['Id']"
+        },
+        "Compose_-_ServerRelativeUrl": {
+          "runAfter": {
+            "Compose_LibraryId": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "48412df6-5324-4534-a623-c0f7aac30f79"
+          },
+          "type": "Compose",
+          "inputs": "@replace(\r\n  body('Een_HTTP-aanvraag_verzenden_naar_SharePoint_-_Library_aanmaken')?['d']?['DocumentTemplateUrl'],\r\n  '/Forms/template.dotx',\r\n  ''\r\n)\r\n"
+        },
+        "Compose_-_SharePoint_URL": {
+          "runAfter": {
+            "Compose_-_ServerRelativeUrl": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "1da1447e-1d24-4feb-b042-569dc0fcf0f7"
+          },
+          "type": "Compose",
+          "inputs": "@concat(\r\n  'https://activaa.sharepoint.com',\r\n  replace(\r\n    body('Een_HTTP-aanvraag_verzenden_naar_SharePoint_-_Library_aanmaken')?['d']?['DocumentTemplateUrl'],\r\n    '/Forms/template.dotx',\r\n    ''\r\n  )\r\n)\r\n"
+        },
+        "Send_an_HTTP_request_to_SharePoint_-_Break_Role_Inheritance": {
+          "runAfter": {
+            "Compose_-_SharePoint_URL": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "bb6e1095-eaf9-492b-b8c3-86d30a53261a"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten/",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/lists(guid'@{outputs('Compose_LibraryId')}')/breakroleinheritance(copyRoleAssignments=false,clearSubscopes=true)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Status_Start": {
+          "runAfter": {
+            "Get_a_row_by_ID": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ef1234567801"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@triggerOutputs()?['body/accountid']",
+              "item/cr283_permissionsetup": "In uitvoering: cliëntdossier aanmaken..."
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Status_Fout_Library": {
+          "runAfter": {
+            "Een_HTTP-aanvraag_verzenden_naar_SharePoint_-_Library_aanmaken": [
+              "Failed",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ef1234567802"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@triggerOutputs()?['body/accountid']",
+              "item/cr283_permissionsetup": "FOUT: SharePoint library aanmaken mislukt (@{utcNow()})"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Status_Fout_Entra_RO": {
+          "runAfter": {
+            "Create_security_group_Hoofdmap_RO": [
+              "Failed",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ef1234567803"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@triggerOutputs()?['body/accountid']",
+              "item/cr283_permissionsetup": "FOUT: Entra ID groep HoofdmapRO aanmaken mislukt (@{utcNow()})"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Status_Fout_Entra_RW": {
+          "runAfter": {
+            "Create_security_group_Hoofdmap_RW": [
+              "Failed",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ef1234567804"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@triggerOutputs()?['body/accountid']",
+              "item/cr283_permissionsetup": "FOUT: Entra ID groep HoofdmapRW aanmaken mislukt (@{utcNow()})"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "AddRoleAssignment_Hoofdmap_RO": {
+          "runAfter": {
+            "Update_a_row_KlantgroepHoofdmapRO": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ff0000000001"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/lists(guid'@{outputs('Compose_LibraryId')}')/roleassignments/addroleassignment(principalid=@{outputs('PrincipalId_Hoofdmap_RO')},roleDefId=1073741826)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "AddRoleAssignment_Hoofdmap_RW": {
+          "runAfter": {
+            "Update_a_row_KlantgroepHoofdmapRW": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ff0000000002"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/lists(guid'@{outputs('Compose_LibraryId')}')/roleassignments/addroleassignment(principalid=@{outputs('PrincipalId_Hoofdmap_RW')},roleDefId=1073741827)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "AddRoleAssignment_1_Intern": {
+          "runAfter": {
+            "Update_a_row_Klantgroep_Intern": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ff0000000003"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}/1. Intern')/ListItemAllFields/roleassignments/addroleassignment(principalid=@{outputs('PrincipalId_1_Intern')},roleDefId=1073741827)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "AddRoleAssignment_2_Aandeelhouder": {
+          "runAfter": {
+            "Update_a_row_Klantgroep_Aandeelhouder": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ff0000000004"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}/2. Aandeelhouder')/ListItemAllFields/roleassignments/addroleassignment(principalid=@{outputs('PrincipalId_2_Aandeelhouder')},roleDefId=1073741827)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "AddRoleAssignment_3_Directie": {
+          "runAfter": {
+            "Update_a_row_Klantgroep_Directie": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ff0000000005"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}/3. Directie')/ListItemAllFields/roleassignments/addroleassignment(principalid=@{outputs('PrincipalId_3_Directie')},roleDefId=1073741827)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "AddRoleAssignment_4_Medewerker": {
+          "runAfter": {
+            "Update_a_row_Klantgroep_Medewerker": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ff0000000006"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/GetFolderByServerRelativeUrl('@{outputs('Compose_-_ServerRelativeUrl')}/4. Medewerker')/ListItemAllFields/roleassignments/addroleassignment(principalid=@{outputs('PrincipalId_4_Medewerker')},roleDefId=1073741827)"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "AddToSiteMembers_Hoofdmap_RW": {
+          "runAfter": {
+            "AddRoleAssignment_Hoofdmap_RW": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-aa0000000001"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/AssociatedMemberGroup/users",
+              "parameters/headers": {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose"
+              },
+              "parameters/body": "{\"logonName\":\"c:0t.c|tenant|@{outputs('Create_security_group_Hoofdmap_RW')?['body/id']}\"}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Status_Gereed": {
+          "runAfter": {
+            "Add_Intern_groep_to_Hoofdmap_RO_groep": [
+              "Succeeded"
+            ],
+            "Add_Aandeelhouder_groep_to_Hoofdmap_RO_groep": [
+              "Succeeded"
+            ],
+            "Add_Directie_groep_to_Hoofdmap_RO_groep": [
+              "Succeeded"
+            ],
+            "Add_Medewerker_groep_to_Hoofdmap_RO_groep": [
+              "Succeeded"
+            ],
+            "AddRoleAssignment_Hoofdmap_RO": [
+              "Succeeded"
+            ],
+            "AddToSiteMembers_Hoofdmap_RW": [
+              "Succeeded"
+            ],
+            "AddRoleAssignment_1_Intern": [
+              "Succeeded"
+            ],
+            "AddRoleAssignment_2_Aandeelhouder": [
+              "Succeeded"
+            ],
+            "AddRoleAssignment_3_Directie": [
+              "Succeeded"
+            ],
+            "AddRoleAssignment_4_Medewerker": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ef1234567805"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@triggerOutputs()?['body/accountid']",
+              "item/cr283_permissionsetup": "Gereed: cliëntdossier aangemaakt op @{utcNow()}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "outputs": {}
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}

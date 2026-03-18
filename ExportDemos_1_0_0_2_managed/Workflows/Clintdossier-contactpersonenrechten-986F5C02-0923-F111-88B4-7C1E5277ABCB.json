@@ -1,0 +1,558 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "impersonation": {},
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "sk_sharedcommondataserviceforapps_9a1e2"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      },
+      "shared_webcontents": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "sk_sharedwebcontents_97834"
+        },
+        "api": {
+          "name": "shared_webcontents"
+        }
+      },
+      "shared_azuread": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "sk_sharedazuread_2d436"
+        },
+        "api": {
+          "name": "shared_azuread"
+        }
+      },
+      "shared_office365": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "sk_sharedoffice365_6ad9a"
+        },
+        "api": {
+          "name": "shared_office365"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {},
+          "type": "Request",
+          "kind": "Http",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "accountId": {
+                  "type": "string"
+                }
+              }
+            },
+            "triggerAuthenticationType": "All"
+          }
+        }
+      },
+      "actions": {
+        "Get_account": {
+          "runAfter": {},
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@triggerBody()?['accountId']",
+              "accept": "application/json;odata.metadata=minimal"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "GetItem"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Compose_-_KlantgroepenLeeg": {
+          "runAfter": {
+            "Get_account": [
+              "Succeeded"
+            ]
+          },
+          "type": "Compose",
+          "inputs": "@or(\r\n    empty(outputs('Get_account')?['body/cr283_klantgroep_aandeelhouder']),\r\n    empty(outputs('Get_account')?['body/cr283_klantgroep_directie']),\r\n    empty(outputs('Get_account')?['body/cr283_klantgroep_intern']),\r\n    empty(outputs('Get_account')?['body/cr283_klantgroep_medewerker'])\r\n)"
+        },
+        "Condition_2": {
+          "actions": {},
+          "runAfter": {
+            "Compose_-_KlantgroepenLeeg": [
+              "Succeeded"
+            ]
+          },
+          "else": {
+            "actions": {
+              "Send_an_email_(V2)": {
+                "type": "OpenApiConnection",
+                "inputs": {
+                  "parameters": {
+                    "emailMessage/To": "automatisering@activaa.nl",
+                    "emailMessage/Subject": "Entra ID groepen voor account @{outputs('Get_account')?['body/name']} nog niet aangemaakt",
+                    "emailMessage/Body": "<p class=\"editor-paragraph\">Beste gebruiker,<br><br>Voor deze client zijn de Entra ID-groepen nog niet aangemaakt.<br>Ga in CRM naar het betreffende account en start de flow “Entra ID groepen flow”.<br><br>Zodra deze is afgerond, kun je de flow “Clientdossier – contactpersonen rechten” opnieuw uitvoeren.<br><br>Mocht je vragen hebben, laat het gerust weten.<br><br>Met vriendelijke groet,<br><br>Automatisering</p>",
+                    "emailMessage/Importance": "Normal"
+                  },
+                  "host": {
+                    "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                    "connectionName": "shared_office365",
+                    "operationId": "SendEmailV2"
+                  },
+                  "authentication": "@parameters('$authentication')"
+                }
+              },
+              "Terminate": {
+                "runAfter": {
+                  "Send_an_email_(V2)": [
+                    "Succeeded"
+                  ]
+                },
+                "type": "Terminate",
+                "inputs": {
+                  "runStatus": "Cancelled"
+                }
+              }
+            }
+          },
+          "expression": {
+            "and": [
+              {
+                "not": {
+                  "equals": [
+                    "@outputs('Compose_-_KlantgroepenLeeg')",
+                    true
+                  ]
+                }
+              }
+            ]
+          },
+          "type": "If"
+        },
+        "Initialize_variable_-_varGroupId": {
+          "runAfter": {
+            "Condition_2": [
+              "Succeeded"
+            ]
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varGroupId",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "Initialize_variable_varFolderName": {
+          "runAfter": {
+            "Initialize_variable_-_varGroupId": [
+              "Succeeded"
+            ]
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varFolderName",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "Initialize_variable_varRoles": {
+          "runAfter": {
+            "Initialize_variable_varFolderName": [
+              "Succeeded"
+            ]
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varRoles",
+                "type": "array"
+              }
+            ]
+          }
+        },
+        "List_contacten": {
+          "runAfter": {
+            "Initialize_variable_varRoles": [
+              "Succeeded"
+            ]
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "contacts",
+              "$filter": "_parentcustomerid_value eq @{triggerBody()?['accountId']} and statecode eq 0",
+              "$select": "contactid,fullname,emailaddress1,sk_functietype",
+              "accept": "application/json;odata.metadata=full"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "ListItems"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Apply_to_each_contact": {
+          "runAfter": {
+            "List_contacten": [
+              "Succeeded"
+            ]
+          },
+          "type": "Foreach",
+          "foreach": "@outputs('List_contacten')?['body/value']",
+          "actions": {
+            "Compose_-_Functierol": {
+              "runAfter": {},
+              "type": "Compose",
+              "inputs": "@items('Apply_to_each_contact')?['sk_functietype@OData.Community.Display.V1.FormattedValue']"
+            },
+            "Stel_varGroupId_in": {
+              "runAfter": {
+                "Compose_-_Functierol": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Switch",
+              "expression": "@outputs('Compose_-_Functierol')",
+              "cases": {
+                "Directie": {
+                  "case": "Directie",
+                  "actions": {
+                    "Set_varGroupId_Directie": {
+                      "runAfter": {},
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "varGroupId",
+                        "value": "@outputs('Get_account')?['body/cr283_klantgroep_directie']"
+                      }
+                    }
+                  }
+                },
+                "Aandeelhouder": {
+                  "case": "Aandeelhouder",
+                  "actions": {
+                    "Set_varGroupId_Aandeelhouder": {
+                      "runAfter": {},
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "varGroupId",
+                        "value": "@outputs('Get_account')?['body/cr283_klantgroep_aandeelhouder']"
+                      }
+                    }
+                  }
+                },
+                "Medewerker": {
+                  "case": "Medewerker",
+                  "actions": {
+                    "Set_varGroupId_Medewerker": {
+                      "runAfter": {},
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "varGroupId",
+                        "value": "@outputs('Get_account')?['body/cr283_klantgroep_medewerker']"
+                      }
+                    }
+                  }
+                }
+              },
+              "default": {
+                "actions": {
+                  "Reset_varGroupId": {
+                    "runAfter": {},
+                    "type": "SetVariable",
+                    "inputs": {
+                      "name": "varGroupId",
+                      "value": ""
+                    }
+                  }
+                }
+              }
+            },
+            "Compose_-_TransformedEmail": {
+              "runAfter": {
+                "Stel_varGroupId_in": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Compose",
+              "inputs": "@concat(replace(items('Apply_to_each_contact')?['emailaddress1'], '@', '_'), '#EXT#@activaa.onmicrosoft.com')"
+            },
+            "Bestaat_de_user_al_als_guest": {
+              "runAfter": {
+                "Compose_-_TransformedEmail": [
+                  "Succeeded"
+                ]
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "parameters": {
+                  "request/method": "GET",
+                  "request/url": "https://graph.microsoft.com/v1.0/users?$filter=(mail eq '@{encodeUriComponent(outputs('Compose_-_TransformedEmail'))}') or (userPrincipalName eq '@{encodeUriComponent(outputs('Compose_-_TransformedEmail'))}')&$select=id,mail,userPrincipalName,userType"
+                },
+                "host": {
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_webcontents",
+                  "connectionName": "shared_webcontents",
+                  "operationId": "InvokeHttp"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Compose_-_IsKnown": {
+              "runAfter": {
+                "Bestaat_de_user_al_als_guest": [
+                  "Succeeded"
+                ]
+              },
+              "type": "Compose",
+              "inputs": "@equals(length(body('Bestaat_de_user_al_als_guest')?['value']), 0)"
+            },
+            "Valideer_contactstatus_en_e-mailadres": {
+              "runAfter": {
+                "Compose_-_IsKnown": [
+                  "Succeeded"
+                ]
+              },
+              "type": "If",
+              "expression": {
+                "and": [
+                  {
+                    "not": {
+                      "equals": [
+                        "@empty(coalesce(items('Apply_to_each_contact')?['emailaddress1'], ''))",
+                        true
+                      ]
+                    }
+                  }
+                ]
+              },
+              "actions": {
+                "Controleer_of_user_bestaat": {
+                  "runAfter": {},
+                  "type": "If",
+                  "expression": {
+                    "and": [
+                      {
+                        "equals": [
+                          "@outputs('Compose_-_IsKnown')",
+                          false
+                        ]
+                      }
+                    ]
+                  },
+                  "actions": {
+                    "Compose_-_EntraID_UserID": {
+                      "runAfter": {},
+                      "type": "Compose",
+                      "inputs": "@body('Bestaat_de_user_al_als_guest')?['value']?[0]?['id']"
+                    },
+                    "Controleer_groep_ingesteld": {
+                      "runAfter": {
+                        "Compose_-_EntraID_UserID": [
+                          "Succeeded"
+                        ]
+                      },
+                      "type": "If",
+                      "expression": {
+                        "and": [
+                          {
+                            "not": {
+                              "equals": [
+                                "@variables('varGroupId')",
+                                ""
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "actions": {
+                        "HTTP_CheckMember": {
+                          "runAfter": {},
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "parameters": {
+                              "request/method": "POST",
+                              "request/url": "https://graph.microsoft.com/v1.0/users/@{outputs('Compose_-_EntraID_UserID')}/checkMemberObjects",
+                              "request/headers": {
+                                "Content-Type": "application/json"
+                              },
+                              "request/body": "{\n  \"ids\": [\n    \"@{variables('varGroupId')}\"\n  ]\n}"
+                            },
+                            "host": {
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_webcontents",
+                              "connectionName": "shared_webcontents",
+                              "operationId": "InvokeHttp"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          }
+                        },
+                        "Compose_-_IsMember": {
+                          "runAfter": {
+                            "HTTP_CheckMember": [
+                              "Succeeded"
+                            ]
+                          },
+                          "type": "Compose",
+                          "inputs": "@greater(length(body('HTTP_CheckMember')?['value']), 0)"
+                        },
+                        "Condition_-_Al_lid": {
+                          "runAfter": {
+                            "Compose_-_IsMember": [
+                              "Succeeded"
+                            ]
+                          },
+                          "type": "If",
+                          "expression": {
+                            "and": [
+                              {
+                                "equals": [
+                                  "@outputs('Compose_-_IsMember')",
+                                  true
+                                ]
+                              }
+                            ]
+                          },
+                          "actions": {},
+                          "else": {
+                            "actions": {
+                              "Add_user_to_group": {
+                                "runAfter": {},
+                                "type": "OpenApiConnection",
+                                "inputs": {
+                                  "parameters": {
+                                    "body/@odata.id": "@outputs('Compose_-_EntraID_UserID')",
+                                    "id": "@variables('varGroupId')"
+                                  },
+                                  "host": {
+                                    "apiId": "/providers/Microsoft.PowerApps/apis/shared_azuread",
+                                    "connectionName": "shared_azuread",
+                                    "operationId": "AddUserToGroup"
+                                  },
+                                  "authentication": "@parameters('$authentication')"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      "else": {
+                        "actions": {}
+                      }
+                    }
+                  },
+                  "else": {
+                    "actions": {
+                      "Gastgebruiker_uitnodigen": {
+                        "runAfter": {},
+                        "type": "OpenApiConnection",
+                        "inputs": {
+                          "parameters": {
+                            "request/method": "POST",
+                            "request/url": "https://graph.microsoft.com/v1.0/invitations",
+                            "request/headers": {
+                              "Content-Type": "application/json"
+                            },
+                            "request/body": "{\n  \"invitedUserEmailAddress\": \"@{items('Apply_to_each_contact')?['emailaddress1']}\",\n  \"inviteRedirectUrl\": \"https://activaa.nl\",\n  \"sendInvitationMessage\": true,\n  \"invitedUserDisplayName\": \"@{items('Apply_to_each_contact')?['fullname']}\"\n}"
+                          },
+                          "host": {
+                            "apiId": "/providers/Microsoft.PowerApps/apis/shared_webcontents",
+                            "connectionName": "shared_webcontents",
+                            "operationId": "InvokeHttp"
+                          },
+                          "authentication": "@parameters('$authentication')"
+                        }
+                      },
+                      "Compose_-_GuestUserId": {
+                        "runAfter": {
+                          "Gastgebruiker_uitnodigen": [
+                            "Succeeded"
+                          ]
+                        },
+                        "type": "Compose",
+                        "inputs": "@body('Gastgebruiker_uitnodigen')?['invitedUser']?['id']"
+                      },
+                      "Controleer_groep_ingesteld_gast": {
+                        "runAfter": {
+                          "Compose_-_GuestUserId": [
+                            "Succeeded"
+                          ]
+                        },
+                        "type": "If",
+                        "expression": {
+                          "and": [
+                            {
+                              "not": {
+                                "equals": [
+                                  "@variables('varGroupId')",
+                                  ""
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        "actions": {
+                          "Add_gast_to_group": {
+                            "runAfter": {},
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "parameters": {
+                                "body/@odata.id": "@outputs('Compose_-_GuestUserId')",
+                                "id": "@variables('varGroupId')"
+                              },
+                              "host": {
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_azuread",
+                                "connectionName": "shared_azuread",
+                                "operationId": "AddUserToGroup"
+                              },
+                              "authentication": "@parameters('$authentication')"
+                            }
+                          }
+                        },
+                        "else": {
+                          "actions": {}
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "else": {
+                "actions": {}
+              }
+            }
+          }
+        }
+      },
+      "outputs": {}
+    },
+    "templateName": null
+  },
+  "schemaVersion": "1.0.0.0"
+}
