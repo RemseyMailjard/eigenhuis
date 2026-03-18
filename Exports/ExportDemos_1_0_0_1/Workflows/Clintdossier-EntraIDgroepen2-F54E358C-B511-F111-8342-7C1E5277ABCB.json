@@ -1063,6 +1063,79 @@
               "unit": "Second"
             }
           }
+        },
+        "Status_Start": {
+          "runAfter": {
+            "Get_a_row_by_ID": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ef1234567810"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@triggerBody()?['text']",
+              "item/cr283_permissionsetup": "In uitvoering: Entra ID groepen aanmaken..."
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Status_Fout_Entra_Groepen": {
+          "runAfter": {
+            "Scope_-_Entra_groepen_creeren": [
+              "Failed",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ef1234567811"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@triggerBody()?['text']",
+              "item/cr283_permissionsetup": "FOUT: Entra ID groepen aanmaken mislukt (@{utcNow()})"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "Status_Gereed": {
+          "runAfter": {
+            "HTTP": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ef1234567812"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@triggerBody()?['text']",
+              "item/cr283_permissionsetup": "Gereed: Entra ID groepen aangemaakt en rechten ingesteld op @{utcNow()}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
         }
       },
       "outputs": {}

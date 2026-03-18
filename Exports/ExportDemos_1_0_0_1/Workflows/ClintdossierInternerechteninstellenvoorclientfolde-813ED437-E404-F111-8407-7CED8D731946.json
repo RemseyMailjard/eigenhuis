@@ -531,7 +531,7 @@
             "runStatus": "Succeeded"
           },
           "runAfter": {
-            "Update_a_row_1": [
+            "Status_Gereed": [
               "Succeeded"
             ]
           },
@@ -909,6 +909,100 @@
             }
           },
           "runAfter": {}
+        },
+        "Status_Start": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@triggerBody()?['accountid']",
+              "item/cr283_permissionsetup": "In uitvoering: interne rechten instellen..."
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord",
+              "connectionName": "shared_commondataserviceforapps"
+            }
+          },
+          "runAfter": {
+            "Get_Cliëntdossier_by_AccountID": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ef1234567820"
+          }
+        },
+        "Status_Fout_PrincipalIds": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@triggerBody()?['accountid']",
+              "item/cr283_permissionsetup": "FOUT: SharePoint principalIds ophalen mislukt (@{utcNow()})"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord",
+              "connectionName": "shared_commondataserviceforapps"
+            }
+          },
+          "runAfter": {
+            "Update_PrincipalIps": [
+              "Failed",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ef1234567821"
+          }
+        },
+        "Status_Fout_Rechten": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@triggerBody()?['accountid']",
+              "item/cr283_permissionsetup": "FOUT: Rechten instellen per folder mislukt (@{utcNow()})"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord",
+              "connectionName": "shared_commondataserviceforapps"
+            }
+          },
+          "runAfter": {
+            "Apply_to_each_\u2014_AllRead": [
+              "Failed",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ef1234567822"
+          }
+        },
+        "Status_Gereed": {
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "entityName": "accounts",
+              "recordId": "@triggerBody()?['accountid']",
+              "item/cr283_permissionsetup": "Gereed: rechten ingesteld op @{utcNow()}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps",
+              "operationId": "UpdateOnlyRecord",
+              "connectionName": "shared_commondataserviceforapps"
+            }
+          },
+          "runAfter": {
+            "Update_a_row_1": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ef1234567823"
+          }
         }
       }
     },
