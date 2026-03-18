@@ -198,9 +198,25 @@
             ]
           }
         },
-        "List_contacten": {
+        "Initialize_variable_-_varUserEntraId": {
           "runAfter": {
             "Initialize_variable_varRoles": [
+              "Succeeded"
+            ]
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varUserEntraId",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "List_contacten": {
+          "runAfter": {
+            "Initialize_variable_-_varUserEntraId": [
               "Succeeded"
             ]
           },
@@ -208,8 +224,8 @@
           "inputs": {
             "parameters": {
               "entityName": "contacts",
-              "$filter": "_parentcustomerid_value eq @{triggerBody()?['accountId']} and statecode eq 0",
-              "$select": "contactid,fullname,emailaddress1,sk_functietype",
+              "$filter": "_parentcustomerid_value eq @{triggerBody()?['accountId']} and statecode eq 0 and donotemail eq false",
+              "$select": "contactid,fullname,emailaddress1,sk_functietype,cr283_correspondentie",
               "accept": "application/json;odata.metadata=full"
             },
             "host": {
@@ -315,7 +331,7 @@
               "inputs": {
                 "parameters": {
                   "request/method": "GET",
-                  "request/url": "https://graph.microsoft.com/v1.0/users?$filter=(mail eq '@{encodeUriComponent(outputs('Compose_-_TransformedEmail'))}') or (userPrincipalName eq '@{encodeUriComponent(outputs('Compose_-_TransformedEmail'))}')&$select=id,mail,userPrincipalName,userType"
+                  "request/url": "https://graph.microsoft.com/v1.0/users?$filter=(mail eq '@{encodeUriComponent(outputs('Compose_-_TransformedEmail'))}') or (userPrincipalName eq '@{encodeUriComponent(outputs('Compose_-_TransformedEmail'))}') or (mail eq '@{encodeUriComponent(items('Apply_to_each_contact')?['emailaddress1'])}')&$select=id,mail,userPrincipalName,userType"
                 },
                 "host": {
                   "apiId": "/providers/Microsoft.PowerApps/apis/shared_webcontents",
@@ -373,9 +389,21 @@
                       "type": "Compose",
                       "inputs": "@body('Bestaat_de_user_al_als_guest')?['value']?[0]?['id']"
                     },
-                    "Controleer_groep_ingesteld": {
+                    "Set_varUserEntraId_bestaand": {
                       "runAfter": {
                         "Compose_-_EntraID_UserID": [
+                          "Succeeded"
+                        ]
+                      },
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "varUserEntraId",
+                        "value": "@outputs('Compose_-_EntraID_UserID')"
+                      }
+                    },
+                    "Controleer_groep_ingesteld": {
+                      "runAfter": {
+                        "Set_varUserEntraId_bestaand": [
                           "Succeeded"
                         ]
                       },
@@ -498,9 +526,21 @@
                         "type": "Compose",
                         "inputs": "@body('Gastgebruiker_uitnodigen')?['invitedUser']?['id']"
                       },
-                      "Controleer_groep_ingesteld_gast": {
+                      "Set_varUserEntraId_gast": {
                         "runAfter": {
                           "Compose_-_GuestUserId": [
+                            "Succeeded"
+                          ]
+                        },
+                        "type": "SetVariable",
+                        "inputs": {
+                          "name": "varUserEntraId",
+                          "value": "@outputs('Compose_-_GuestUserId')"
+                        }
+                      },
+                      "Controleer_groep_ingesteld_gast": {
+                        "runAfter": {
+                          "Set_varUserEntraId_gast": [
                             "Succeeded"
                           ]
                         },
@@ -540,6 +580,113 @@
                         }
                       }
                     }
+                  }
+                },
+                "Voeg_toe_aan_correspondentiegroep": {
+                  "runAfter": {
+                    "Controleer_of_user_bestaat": [
+                      "Succeeded"
+                    ]
+                  },
+                  "type": "If",
+                  "expression": {
+                    "and": [
+                      {
+                        "equals": [
+                          "@items('Apply_to_each_contact')?['cr283_correspondentie']",
+                          true
+                        ]
+                      },
+                      {
+                        "not": {
+                          "equals": [
+                            "@coalesce(outputs('Get_account')?['body/cr283_klantgroep_correspondentie'], '')",
+                            ""
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "equals": [
+                            "@variables('varUserEntraId')",
+                            ""
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "actions": {
+                    "HTTP_CheckMember_Correspondentie": {
+                      "runAfter": {},
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "parameters": {
+                          "request/method": "POST",
+                          "request/url": "https://graph.microsoft.com/v1.0/users/@{variables('varUserEntraId')}/checkMemberObjects",
+                          "request/headers": {
+                            "Content-Type": "application/json"
+                          },
+                          "request/body": "{\n  \"ids\": [\n    \"@{outputs('Get_account')?['body/cr283_klantgroep_correspondentie']}\"\n  ]\n}"
+                        },
+                        "host": {
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_webcontents",
+                          "connectionName": "shared_webcontents",
+                          "operationId": "InvokeHttp"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      }
+                    },
+                    "Compose_-_IsMember_Correspondentie": {
+                      "runAfter": {
+                        "HTTP_CheckMember_Correspondentie": [
+                          "Succeeded"
+                        ]
+                      },
+                      "type": "Compose",
+                      "inputs": "@greater(length(body('HTTP_CheckMember_Correspondentie')?['value']), 0)"
+                    },
+                    "Condition_-_Al_lid_correspondentie": {
+                      "runAfter": {
+                        "Compose_-_IsMember_Correspondentie": [
+                          "Succeeded"
+                        ]
+                      },
+                      "type": "If",
+                      "expression": {
+                        "and": [
+                          {
+                            "equals": [
+                              "@outputs('Compose_-_IsMember_Correspondentie')",
+                              true
+                            ]
+                          }
+                        ]
+                      },
+                      "actions": {},
+                      "else": {
+                        "actions": {
+                          "Add_user_to_correspondentiegroep": {
+                            "runAfter": {},
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "parameters": {
+                                "body/@odata.id": "@variables('varUserEntraId')",
+                                "id": "@outputs('Get_account')?['body/cr283_klantgroep_correspondentie']"
+                              },
+                              "host": {
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_azuread",
+                                "connectionName": "shared_azuread",
+                                "operationId": "AddUserToGroup"
+                              },
+                              "authentication": "@parameters('$authentication')"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "else": {
+                    "actions": {}
                   }
                 }
               },
