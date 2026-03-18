@@ -813,9 +813,50 @@
             "authentication": "@parameters('$authentication')"
           }
         },
-        "Update_a_row_KlantgroepHoofdmapRO": {
+        "EnsureUser_Hoofdmap_RO": {
           "runAfter": {
             "Create_security_group_Hoofdmap_RO": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000001"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/ensureUser",
+              "parameters/headers": {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose"
+              },
+              "parameters/body": "{\"logonName\":\"c:0t.c|tenant|@{outputs('Create_security_group_Hoofdmap_RO')?['body/id']}\"}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "PrincipalId_Hoofdmap_RO": {
+          "runAfter": {
+            "EnsureUser_Hoofdmap_RO": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000002"
+          },
+          "type": "Compose",
+          "inputs": "@body('EnsureUser_Hoofdmap_RO')?['d']?['Id']"
+        },
+        "Update_a_row_KlantgroepHoofdmapRO": {
+          "runAfter": {
+            "PrincipalId_Hoofdmap_RO": [
               "Succeeded"
             ]
           },
@@ -840,9 +881,50 @@
             "authentication": "@parameters('$authentication')"
           }
         },
-        "Update_a_row_KlantgroepHoofdmapRW": {
+        "EnsureUser_Hoofdmap_RW": {
           "runAfter": {
             "Create_security_group_Hoofdmap_RW": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000003"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/ensureUser",
+              "parameters/headers": {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose"
+              },
+              "parameters/body": "{\"logonName\":\"c:0t.c|tenant|@{outputs('Create_security_group_Hoofdmap_RW')?['body/id']}\"}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "PrincipalId_Hoofdmap_RW": {
+          "runAfter": {
+            "EnsureUser_Hoofdmap_RW": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000004"
+          },
+          "type": "Compose",
+          "inputs": "@body('EnsureUser_Hoofdmap_RW')?['d']?['Id']"
+        },
+        "Update_a_row_KlantgroepHoofdmapRW": {
+          "runAfter": {
+            "PrincipalId_Hoofdmap_RW": [
               "Succeeded"
             ]
           },
@@ -864,9 +946,50 @@
             "authentication": "@parameters('$authentication')"
           }
         },
-        "Update_a_row_Klantgroep_Intern": {
+        "EnsureUser_1_Intern": {
           "runAfter": {
             "Create_security_group_1._Intern": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000005"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/ensureUser",
+              "parameters/headers": {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose"
+              },
+              "parameters/body": "{\"logonName\":\"c:0t.c|tenant|@{outputs('Create_security_group_1._Intern')?['body/id']}\"}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "PrincipalId_1_Intern": {
+          "runAfter": {
+            "EnsureUser_1_Intern": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000006"
+          },
+          "type": "Compose",
+          "inputs": "@body('EnsureUser_1_Intern')?['d']?['Id']"
+        },
+        "Update_a_row_Klantgroep_Intern": {
+          "runAfter": {
+            "PrincipalId_1_Intern": [
               "Succeeded"
             ]
           },
@@ -888,9 +1011,50 @@
             "authentication": "@parameters('$authentication')"
           }
         },
-        "Update_a_row_Klantgroep_Aandeelhouder": {
+        "EnsureUser_2_Aandeelhouder": {
           "runAfter": {
             "Create_security_group_2._Aandeelhouder": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000007"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/ensureUser",
+              "parameters/headers": {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose"
+              },
+              "parameters/body": "{\"logonName\":\"c:0t.c|tenant|@{outputs('Create_security_group_2._Aandeelhouder')?['body/id']}\"}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "PrincipalId_2_Aandeelhouder": {
+          "runAfter": {
+            "EnsureUser_2_Aandeelhouder": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000008"
+          },
+          "type": "Compose",
+          "inputs": "@body('EnsureUser_2_Aandeelhouder')?['d']?['Id']"
+        },
+        "Update_a_row_Klantgroep_Aandeelhouder": {
+          "runAfter": {
+            "PrincipalId_2_Aandeelhouder": [
               "Succeeded"
             ]
           },
@@ -912,9 +1076,50 @@
             "authentication": "@parameters('$authentication')"
           }
         },
-        "Update_a_row_Klantgroep_Directie": {
+        "EnsureUser_3_Directie": {
           "runAfter": {
             "Create_security_group_3._Directie": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000009"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/ensureUser",
+              "parameters/headers": {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose"
+              },
+              "parameters/body": "{\"logonName\":\"c:0t.c|tenant|@{outputs('Create_security_group_3._Directie')?['body/id']}\"}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "PrincipalId_3_Directie": {
+          "runAfter": {
+            "EnsureUser_3_Directie": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000010"
+          },
+          "type": "Compose",
+          "inputs": "@body('EnsureUser_3_Directie')?['d']?['Id']"
+        },
+        "Update_a_row_Klantgroep_Directie": {
+          "runAfter": {
+            "PrincipalId_3_Directie": [
               "Succeeded"
             ]
           },
@@ -936,9 +1141,50 @@
             "authentication": "@parameters('$authentication')"
           }
         },
-        "Update_a_row_Klantgroep_Medewerker": {
+        "EnsureUser_4_Medewerker": {
           "runAfter": {
             "Create_security_group_4._Medewerker": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000011"
+          },
+          "type": "OpenApiConnection",
+          "inputs": {
+            "parameters": {
+              "dataset": "https://activaa.sharepoint.com/sites/Klanten",
+              "parameters/method": "POST",
+              "parameters/uri": "_api/web/ensureUser",
+              "parameters/headers": {
+                "Accept": "application/json;odata=verbose",
+                "Content-Type": "application/json;odata=verbose"
+              },
+              "parameters/body": "{\"logonName\":\"c:0t.c|tenant|@{outputs('Create_security_group_4._Medewerker')?['body/id']}\"}"
+            },
+            "host": {
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
+              "connectionName": "shared_sharepointonline",
+              "operationId": "HttpRequest"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        },
+        "PrincipalId_4_Medewerker": {
+          "runAfter": {
+            "EnsureUser_4_Medewerker": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a1b2c3d4-e5f6-7890-abcd-ee0000000012"
+          },
+          "type": "Compose",
+          "inputs": "@body('EnsureUser_4_Medewerker')?['d']?['Id']"
+        },
+        "Update_a_row_Klantgroep_Medewerker": {
+          "runAfter": {
+            "PrincipalId_4_Medewerker": [
               "Succeeded"
             ]
           },
